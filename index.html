@@ -42,7 +42,8 @@
   .addphoto{background:none;border:none;color:var(--blue);font-family:inherit;font-weight:800;font-size:13px;text-decoration:underline;cursor:pointer;margin-bottom:6px;}
   .hint{min-height:24px;font-weight:800;color:var(--blue);font-size:18px;margin-bottom:4px;}
   .hint.hidden span{filter:blur(7px);}
-  .hintbtn{background:none;border:none;color:var(--muted);font-family:inherit;font-weight:700;font-size:12px;text-decoration:underline;cursor:pointer;margin-bottom:10px;}
+  .hintbtn{background:none;border:none;color:var(--muted);font-family:inherit;font-weight:700;font-size:12px;text-decoration:underline;cursor:pointer;}
+  .hint-btns{display:flex;gap:16px;justify-content:center;margin-bottom:10px;}
   input.ans{width:100%;font-family:"Baloo 2",sans-serif;font-weight:700;font-size:26px;text-align:center;padding:14px 10px;border-radius:16px;border:2.5px solid var(--line);outline:none;color:var(--ink);background:#fffdf8;}
   input.ans:focus{border-color:var(--accent);}
   input.ans.ok{border-color:var(--known);background:var(--known-bg);}
@@ -153,9 +154,13 @@
       <div class="pic" id="qPic"></div>
       <button class="addphoto" id="qAddPhoto">📷 この絵に写真をつける／変える</button>
       <div class="hint hidden" id="qHint"><span id="qHintText"></span></div>
-      <button class="hintbtn" onclick="toggleHint()">ヒント（にほんご）を みる</button>
+      <div class="hint-btns">
+        <button class="hintbtn" onclick="toggleHint()">💬 ヒント（にほんご）</button>
+        <button class="hintbtn" onclick="speakCurrent()">🔊 ヒント（えいごのおと）</button>
+      </div>
       <input class="ans" id="ansInput" type="text" inputmode="latin" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="えいごで かこう" enterkeyhint="done">
       <div class="feedback" id="feedback"></div>
+      <button id="readBtn" class="hintbtn" style="display:none;margin-top:6px;" onclick="speakCurrent()">🔊 よむ</button>
       <div class="btns" id="answerBtns">
         <button class="btn ghost small" onclick="reveal()">こたえを みる</button>
         <button class="btn primary" onclick="check()">こたえあわせ</button>
@@ -332,11 +337,16 @@ function nextCard(){if(scopeWords().length===0){renderEmptyQuiz();return;}if(que
 function renderEmptyQuiz(){document.getElementById("qTag").textContent="";document.getElementById("qStat").textContent="";document.getElementById("qPic").innerHTML='<div class="ph">単語がありません<br>「いちらん」で追加してね</div>';document.getElementById("ansInput").style.display="none";document.getElementById("answerBtns").style.display="none";}
 const SL={new:["みがくしゅう","var(--new)","#fff"],learn:["まだ","var(--learn)","#fff"],known:["おぼえた","var(--known)","#fff"]};
 function picHtml(id,big){const p=state.photos[id];if(p)return`<img src="${p}" alt="">`;return`<div class="ph"><b>📷</b>${big?"写真をつけよう":""}</div>`;}
-function renderQuiz(){if(!cur){nextCard();return;}answered=false;const c=document.getElementById("quizCard");c.classList.remove("pop");void c.offsetWidth;c.classList.add("pop");document.getElementById("qTag").textContent=cur.u.id+" "+cur.u.name;const s=SL[statusOf(cur.w.id)];const st=document.getElementById("qStat");st.textContent=s[0];st.style.background=s[1];st.style.color=s[2];document.getElementById("qPic").innerHTML=picHtml(cur.w.id,true);document.getElementById("qHintText").textContent=cur.w.j;document.getElementById("qHint").classList.add("hidden");const inp=document.getElementById("ansInput");inp.style.display="";inp.value="";inp.className="ans";inp.disabled=false;document.getElementById("feedback").textContent="";document.getElementById("feedback").style.color="";document.getElementById("answerBtns").style.display="flex";document.getElementById("nextBtns").style.display="none";}
+function renderQuiz(){if(!cur){nextCard();return;}answered=false;const c=document.getElementById("quizCard");c.classList.remove("pop");void c.offsetWidth;c.classList.add("pop");document.getElementById("qTag").textContent=cur.u.id+" "+cur.u.name;const s=SL[statusOf(cur.w.id)];const st=document.getElementById("qStat");st.textContent=s[0];st.style.background=s[1];st.style.color=s[2];document.getElementById("qPic").innerHTML=picHtml(cur.w.id,true);document.getElementById("qHintText").textContent=cur.w.j;document.getElementById("qHint").classList.add("hidden");const inp=document.getElementById("ansInput");inp.style.display="";inp.value="";inp.className="ans";inp.disabled=false;document.getElementById("feedback").textContent="";document.getElementById("feedback").style.color="";document.getElementById("answerBtns").style.display="flex";document.getElementById("nextBtns").style.display="none";document.getElementById("readBtn").style.display="none";}
 function toggleHint(){document.getElementById("qHint").classList.toggle("hidden");}
+function speak(text){const u=new SpeechSynthesisUtterance(text.split("/")[0].trim());u.lang="en-US";u.rate=0.9;speechSynthesis.cancel();speechSynthesis.speak(u);}
+function speakCurrent(){if(cur)speak(cur.w.e);}
+function playSound(notes){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();notes.forEach(([f,t,d])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(0.28,ctx.currentTime+t);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+d);o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+d);});}catch(e){}}
+function playCorrect(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const t=ctx.currentTime;[[392,0,0.09,"sine"],[523,0.08,0.09,"sine"],[659,0.16,0.09,"sine"],[523,0.27,0.75,"triangle"],[659,0.27,0.75,"triangle"],[784,0.27,0.75,"triangle"],[1047,0.27,0.55,"sine"]].forEach(([f,s,d,tp])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type=tp;o.frequency.value=f;g.gain.setValueAtTime(0.22,t+s);g.gain.exponentialRampToValueAtTime(0.001,t+s+d);o.start(t+s);o.stop(t+s+d);});}catch(e){}}
+function playWrong(){playSound([[311,0,0.28],[233,0.22,0.38]]);}
 function accepted(w){return w.e.split("/").map(x=>norm(x)).filter(Boolean);}
-function check(){if(answered||!cur)return;const inp=document.getElementById("ansInput");const v=norm(inp.value);if(!v){inp.focus();return;}const ok=accepted(cur.w).includes(v);answered=true;inp.disabled=true;const fb=document.getElementById("feedback");document.getElementById("answerBtns").style.display="none";document.getElementById("nextBtns").style.display="flex";if(ok){inp.classList.add("ok");fb.innerHTML="🎉 せいかい！ <span class='correctword'>"+cur.w.e+"</span>";fb.style.color="var(--known)";confetti();}else{inp.classList.add("ng");fb.innerHTML="おしい！ こたえ → <span class='correctword'>"+cur.w.e+"</span>";fb.style.color="var(--learn)";document.getElementById("qHint").classList.remove("hidden");}}
-function reveal(){if(answered||!cur)return;answered=true;document.getElementById("ansInput").disabled=true;document.getElementById("qHint").classList.remove("hidden");document.getElementById("feedback").innerHTML="こたえ → <span class='correctword'>"+cur.w.e+"</span>";document.getElementById("feedback").style.color="var(--ink)";document.getElementById("answerBtns").style.display="none";document.getElementById("nextBtns").style.display="flex";}
+function check(){if(answered||!cur)return;const inp=document.getElementById("ansInput");const v=norm(inp.value);if(!v){inp.focus();return;}const ok=accepted(cur.w).includes(v);answered=true;inp.disabled=true;const fb=document.getElementById("feedback");document.getElementById("answerBtns").style.display="none";document.getElementById("nextBtns").style.display="flex";if(ok){inp.classList.add("ok");fb.innerHTML="🎉 せいかい！ <span class='correctword'>"+cur.w.e+"</span>";fb.style.color="var(--known)";confetti();playCorrect();}else{inp.classList.add("ng");fb.innerHTML="おしい！ こたえ → <span class='correctword'>"+cur.w.e+"</span>";fb.style.color="var(--learn)";document.getElementById("qHint").classList.remove("hidden");playWrong();}document.getElementById("readBtn").style.display="";}
+function reveal(){if(answered||!cur)return;answered=true;document.getElementById("ansInput").disabled=true;document.getElementById("qHint").classList.remove("hidden");document.getElementById("feedback").innerHTML="こたえ → <span class='correctword'>"+cur.w.e+"</span>";document.getElementById("feedback").style.color="var(--ink)";document.getElementById("answerBtns").style.display="none";document.getElementById("nextBtns").style.display="flex";document.getElementById("readBtn").style.display="";}
 function markAndNext(s){if(cur)setStatus(cur.w.id,s);renderProgress();renderChips();nextCard();}
 document.getElementById("ansInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();if(!answered)check();}});
 document.getElementById("qAddPhoto").addEventListener("click",()=>{if(cur)openSheet(cur.w.id);});
