@@ -126,11 +126,20 @@
   .hidefile{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;}
   .spin{display:inline-block;width:15px;height:15px;border:3px solid #d9c9b6;border-top-color:var(--accent);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:6px;}
   @keyframes sp{to{transform:rotate(360deg)}}
+  .who{background:none;border:none;font-family:inherit;font-weight:700;font-size:12px;color:var(--muted);cursor:pointer;padding:0;text-decoration:underline dotted;}
+  #playerModalBg{position:fixed;inset:0;background:rgba(58,46,38,.5);display:flex;align-items:center;justify-content:center;z-index:100;}
+  #playerModal{background:var(--bg);width:90%;max-width:340px;border-radius:24px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.3);}
+  .modal-title{font-size:16px;font-weight:800;margin-bottom:14px;}
+  .prow{display:flex;align-items:center;gap:8px;border:2px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px;background:#fff;}
+  .prow.pon{border-color:var(--accent);background:#fff2e3;}
+  .pname{flex:1;background:none;border:none;font-family:inherit;font-weight:800;font-size:16px;color:var(--ink);cursor:pointer;text-align:left;}
+  .prow.pon .pname{color:var(--accent-d);}
+  .pedit{background:none;border:none;font-size:14px;cursor:pointer;padding:2px 4px;opacity:.6;}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="hdr"><div class="logo">⭐ えいたんご</div><div class="who">桜大の れんしゅう</div></div>
+  <div class="hdr"><div class="logo">⭐ えいたんご</div><button class="who" id="playerBtn" onclick="openPlayerModal()">プレイヤー：<span id="playerNameDisplay">...</span> ▾</button></div>
   <div class="topbar">
     <div class="row"><span id="scopeName">ぜんぶ の すすみぐあい</span><span id="pctTxt">0%</span></div>
     <div class="bar"><i id="barFill"></i></div>
@@ -282,6 +291,22 @@
   <div class="btns" style="margin-top:16px"><button class="btn ghost" onclick="closeAuto()">とじる</button><button class="btn green" onclick="saveAuto()">登録する</button></div>
 </div></div>
 
+<!-- プレイヤー切り替えモーダル -->
+<div id="playerModalBg" style="display:none" onclick="closePlayerModal()">
+  <div id="playerModal" onclick="event.stopPropagation()">
+    <div class="modal-title">👤 プレイヤーをえらぶ</div>
+    <div id="playerList"></div>
+    <div id="addPlayerArea">
+      <div class="field" style="margin-bottom:4px">
+        <input id="newPlayerName" class="tf" style="font-size:15px;padding:10px 12px" placeholder="なまえ（例：Towa）" maxlength="10">
+        <button class="btn primary small" style="flex:0 0 auto;padding:10px 16px" onclick="addPlayerFromModal()">＋</button>
+      </div>
+      <p style="font-size:11px;color:var(--muted);font-weight:700;margin:0">さいだい5人まで</p>
+    </div>
+    <button class="minibtn" style="width:100%;margin-top:12px" onclick="closePlayerModal()">とじる</button>
+  </div>
+</div>
+
 <input type="file" id="photoFile" class="hidefile" accept="image/*">
 <input type="file" id="autoFile" class="hidefile" accept="image/*">
 <input type="file" id="importQFile" class="hidefile" accept="application/json,.json">
@@ -308,16 +333,33 @@ DEFAULTS.forEach(u=>u[2].forEach(w=>{const f=w[0].toLowerCase();EN2JP[f]=w[1];f.
 Object.keys(EXTRA).forEach(k=>{if(!EN2JP[k])EN2JP[k]=EXTRA[k];});
 function translate(en){const k=norm(en);if(!k)return"";if(EN2JP[k])return EN2JP[k];const f=k.split(" ")[0];if(EN2JP[f])return EN2JP[f];if(f.endsWith("s")&&EN2JP[f.slice(0,-1)])return EN2JP[f.slice(0,-1)];return"";}
 
+/* ===== プレイヤー管理 ===== */
+const PLAYERS_KEY="eitango_players";
+let playerConfig={current:"p1",players:[]};
+function dataKey(){return"eitango_data_"+playerConfig.current;}
+function savePlayerConfig(){localStorage.setItem(PLAYERS_KEY,JSON.stringify(playerConfig));}
+function initPlayers(){
+  try{const raw=localStorage.getItem(PLAYERS_KEY);if(raw){playerConfig=JSON.parse(raw);return;}}catch(e){}
+  const legacy=localStorage.getItem("eitango_sakurato_v2");
+  const p1name=legacy?"桜大":"プレイヤー1";
+  playerConfig={current:"p1",players:[{id:"p1",name:p1name}]};
+  if(legacy)localStorage.setItem("eitango_data_p1",legacy);
+  savePlayerConfig();
+}
+function switchPlayer(id){playerConfig.current=id;savePlayerConfig();scope="all";queue=[];cur=null;answered=false;load();renderPlayerDisplay();renderChips();renderProgress();setView("quiz");closePlayerModal();}
+function addPlayer(name){if(playerConfig.players.length>=5){alert("プレイヤーは5人までです");return;}const id="p"+Date.now();playerConfig.players.push({id,name});localStorage.setItem("eitango_data_"+id,JSON.stringify({seq:1,units:[],prog:{},photos:{}}));savePlayerConfig();renderPlayerModal();}
+function deletePlayer(id){if(playerConfig.players.length<=1){alert("さいごのプレイヤーは削除できません");return;}if(!confirm("このプレイヤーのデータをすべて削除しますか？"))return;localStorage.removeItem("eitango_data_"+id);playerConfig.players=playerConfig.players.filter(p=>p.id!==id);if(playerConfig.current===id){playerConfig.current=playerConfig.players[0].id;scope="all";queue=[];cur=null;answered=false;load();}savePlayerConfig();renderPlayerModal();renderPlayerDisplay();}
+function renamePlayer(id){const p=playerConfig.players.find(x=>x.id===id);if(!p)return;const name=prompt("あたらしいなまえ:",p.name);if(!name||!name.trim())return;p.name=name.trim();savePlayerConfig();renderPlayerModal();renderPlayerDisplay();}
+
 /* ===== ストレージ ===== */
-const KEY="eitango_sakurato_v2";
 let state=null,seq=1;
 function uid(){return"w"+(seq++);}
 function getCK(unitId,e){return unitId+"|"+norm(e);}
 function ensureCK(){state.units.forEach(u=>u.words.forEach(w=>{if(!w.ck)w.ck=getCK(u.id,w.e);}));}
-function seed(){state={seq:1,units:[],prog:{},photos:{}};DEFAULTS.forEach((u,ui)=>{const unit={id:u[0],name:u[1],words:[]};u[2].forEach(w=>{const id=uid();unit.words.push({id,e:w[0],j:w[1],ck:getCK(u[0],w[0])});});state.units.push(unit);});state.seq=seq;}
-function load(){try{const r=localStorage.getItem(KEY);if(r){state=JSON.parse(r);seq=state.seq||1;if(!state.photos)state.photos={};if(!state.prog)state.prog={};ensureCK();return;}}catch(e){}seed();}
-function save(){state.seq=seq;try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){alert("ほぞんできませんでした。写真が多いかもしれません。バックアップを取ってから写真を減らしてください。");}}
-load();
+function seed(){state={seq:1,units:[],prog:{},photos:{}};DEFAULTS.forEach((u)=>{const unit={id:u[0],name:u[1],words:[]};u[2].forEach(w=>{const id=uid();unit.words.push({id,e:w[0],j:w[1],ck:getCK(u[0],w[0])});});state.units.push(unit);});state.seq=seq;}
+function load(){try{const r=localStorage.getItem(dataKey());if(r){state=JSON.parse(r);seq=state.seq||1;if(!state.photos)state.photos={};if(!state.prog)state.prog={};ensureCK();return;}}catch(e){}state={seq:1,units:[],prog:{},photos:{}};seq=1;}
+function save(){state.seq=seq;try{localStorage.setItem(dataKey(),JSON.stringify(state));}catch(e){alert("ほぞんできませんでした。写真が多いかもしれません。バックアップを取ってから写真を減らしてください。");}}
+initPlayers();load();
 
 let view="quiz",scope=state.units[0]?state.units[0].id:"all",queue=[],cur=null,answered=false;
 function norm(s){return(s||"").toLowerCase().trim().replace(/\s+/g," ").replace(/[.\u3002]/g,"");}
@@ -491,7 +533,14 @@ async function ocrWord(canvas){await loadOCR();const{data}=await Tesseract.recog
 document.getElementById("autoFile").addEventListener("change",function(){const file=this.files[0];this.value="";if(!file)return;const status=document.getElementById("autoStatus");status.innerHTML='<span class="spin"></span>絵を切り抜き中…';const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=async()=>{let res;try{res=analyze(img);}catch(err){res={picData:compress(img,0,0,img.width,img.height,380),labelCanvas:(()=>{const c=document.createElement('canvas');c.width=img.width;c.height=Math.round(img.height*0.2);c.getContext('2d').drawImage(img,0,Math.round(img.height*0.8),img.width,Math.round(img.height*0.2),0,0,img.width,Math.round(img.height*0.2));return c;})(),ok:false};autoFullData=res.picData;}autoCropData=res.picData;autoUseFullFlag=false;document.getElementById("autoPic").innerHTML=`<img src="${autoCropData}">`;document.getElementById("autoSwap").style.display="flex";document.getElementById("swCrop").classList.add("on");document.getElementById("swFull").classList.remove("on");status.innerHTML='<span class="spin"></span>英語をよみとり中…（初回は少し時間がかかります）';try{const word=await ocrWord(res.labelCanvas);if(word){document.getElementById("autoEng").value=word;const jp=translate(word);if(jp)document.getElementById("autoJp").value=jp;status.textContent=jp?"✓ 英語と日本語をセットしました（直せます）":"✓ 英語をセット。日本語は入力してね";}else{status.textContent="文字をうまく読めませんでした。英語を入力してね";}}catch(err){status.textContent="⚠️ 文字よみとりはネット接続が必要です。英語を入力してね（絵は登録できます）";}};img.src=e.target.result;};r.readAsDataURL(file);});
 function saveAuto(){const e=document.getElementById("autoEng").value.trim();const j=document.getElementById("autoJp").value.trim();const unitId=document.getElementById("autoUnit").value;if(!autoCropData){alert("写真をえらんでね");return;}if(!e){alert("えいごを入れてね");return;}const u=state.units.find(x=>x.id===unitId);if(!u){alert("単元をえらんでね");return;}const id=uid();const ck=getCK(unitId,e);u.words.push({id,e,j,ck});state.photos[id]=autoUseFullFlag?autoFullData:autoCropData;state.prog[id]="new";save();renderChips();renderProgress();document.getElementById("autoStatus").textContent="✅ 「"+e+"」を登録！つぎのカードもどうぞ";autoCropData=null;autoFullData=null;document.getElementById("autoPic").innerHTML=`<div class="ph"><b>📷</b>つぎのカードをえらんでね</div>`;document.getElementById("autoSwap").style.display="none";document.getElementById("autoEng").value="";document.getElementById("autoJp").value="";if(view==="list")renderList();}
 
-renderChips();renderProgress();nextCard();
+/* プレイヤーモーダル */
+function openPlayerModal(){renderPlayerModal();document.getElementById("playerModalBg").style.display="flex";}
+function closePlayerModal(){document.getElementById("playerModalBg").style.display="none";}
+function renderPlayerModal(){document.getElementById("playerList").innerHTML=playerConfig.players.map(p=>`<div class="prow ${p.id===playerConfig.current?"pon":""}"><button class="pname" onclick="switchPlayer('${p.id}')">${esc(p.name)}</button><button class="pedit" onclick="renamePlayer('${p.id}')">✏️</button>${playerConfig.players.length>1?`<button class="x" onclick="deletePlayer('${p.id}')">けす</button>`:""}</div>`).join("");document.getElementById("addPlayerArea").style.display=playerConfig.players.length>=5?"none":"";}
+function renderPlayerDisplay(){const p=playerConfig.players.find(p=>p.id===playerConfig.current);document.getElementById("playerNameDisplay").textContent=p?p.name:"?";}
+function addPlayerFromModal(){const name=document.getElementById("newPlayerName").value.trim();if(!name)return;addPlayer(name);document.getElementById("newPlayerName").value="";}
+
+renderChips();renderProgress();renderPlayerDisplay();nextCard();
 function confetti(){const cs=["#ff8a3d","#3bb273","#4aa3df","#ffd23f","#ff6b6b"];for(let i=0;i<16;i++){const c=document.createElement("div");c.className="confetti";c.style.left=Math.random()*100+"vw";c.style.background=cs[i%cs.length];c.style.animation="fall "+(0.9+Math.random()*0.7)+"s ease-in "+Math.random()*0.2+"s forwards";document.body.appendChild(c);setTimeout(()=>c.remove(),2000);}}
 </script>
 </body>
