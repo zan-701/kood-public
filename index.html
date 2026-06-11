@@ -454,19 +454,70 @@ function initPlayers(){
   if(legacy)localStorage.setItem("eitango_data_p1",legacy);
   savePlayerConfig();
 }
-function switchPlayer(id){playerConfig.current=id;savePlayerConfig();scope="all";queue=[];cur=null;answered=false;load();renderPlayerDisplay();renderChips();renderProgress();setView("quiz");closePlayerModal();}
-function addPlayer(name){if(playerConfig.players.length>=5){alert("プレイヤーは5人までです");return;}const id="p"+Date.now();playerConfig.players.push({id,name});localStorage.setItem("eitango_data_"+id,JSON.stringify({seq:1,units:[],prog:{},photos:{}}));savePlayerConfig();renderPlayerModal();}
-function deletePlayer(id){if(playerConfig.players.length<=1){alert("さいごのプレイヤーは削除できません");return;}if(!confirm("このプレイヤーのデータをすべて削除しますか？"))return;localStorage.removeItem("eitango_data_"+id);playerConfig.players=playerConfig.players.filter(p=>p.id!==id);if(playerConfig.current===id){playerConfig.current=playerConfig.players[0].id;scope="all";queue=[];cur=null;answered=false;load();}savePlayerConfig();renderPlayerModal();renderPlayerDisplay();}
+async function switchPlayer(id){playerConfig.current=id;savePlayerConfig();scope="all";queue=[];cur=null;answered=false;load();photoCache=await loadPhotosForPlayer(id);await migratePhotosIfNeeded();renderPlayerDisplay();renderChips();renderProgress();setView("quiz");closePlayerModal();}
+function addPlayer(name){if(playerConfig.players.length>=5){alert("プレイヤーは5人までです");return;}const id="p"+Date.now();playerConfig.players.push({id,name});localStorage.setItem("eitango_data_"+id,JSON.stringify({seq:1,units:[],prog:{}}));savePlayerConfig();renderPlayerModal();}
+async function deletePlayer(id){if(playerConfig.players.length<=1){alert("さいごのプレイヤーは削除できません");return;}if(!confirm("このプレイヤーのデータをすべて削除しますか？"))return;localStorage.removeItem("eitango_data_"+id);await clearPhotosForPlayer(id);playerConfig.players=playerConfig.players.filter(p=>p.id!==id);if(playerConfig.current===id){playerConfig.current=playerConfig.players[0].id;scope="all";queue=[];cur=null;answered=false;load();photoCache=await loadPhotosForPlayer(playerConfig.current);await migratePhotosIfNeeded();}savePlayerConfig();renderPlayerModal();renderPlayerDisplay();}
 function renamePlayer(id){const p=playerConfig.players.find(x=>x.id===id);if(!p)return;const name=prompt("あたらしいなまえ:",p.name);if(!name||!name.trim())return;p.name=name.trim();savePlayerConfig();renderPlayerModal();renderPlayerDisplay();}
+
+/* ===== IndexedDB 写真ストレージ ===== */
+const PHOTO_DB='eitango_photo_db';
+let _pdb=null,photoCache={};
+async function _openPDB(){
+  if(_pdb)return _pdb;
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open(PHOTO_DB,1);
+    r.onupgradeneeded=e=>e.target.result.createObjectStore('photos');
+    r.onsuccess=e=>{_pdb=e.target.result;res(_pdb);};
+    r.onerror=e=>rej(e.target.error);
+  });
+}
+async function loadPhotosForPlayer(pid){
+  try{
+    const db=await _openPDB();
+    return await new Promise(res=>{
+      const tx=db.transaction('photos','readonly');
+      const prefix=pid+'_';
+      const range=IDBKeyRange.bound(prefix,prefix+'￿');
+      const cache={};
+      const req=tx.objectStore('photos').openCursor(range);
+      req.onsuccess=e=>{const c=e.target.result;if(c){cache[c.key.slice(prefix.length)]=c.value;c.continue();}else res(cache);};
+      req.onerror=()=>res({});
+    });
+  }catch(e){return{};}
+}
+async function savePhotoDB(wid,b64){
+  photoCache[wid]=b64;
+  try{const db=await _openPDB();await new Promise((res,rej)=>{const tx=db.transaction('photos','readwrite');tx.objectStore('photos').put(b64,playerConfig.current+'_'+wid);tx.oncomplete=res;tx.onerror=rej;});}catch(e){}
+}
+async function deletePhotoDB(wid){
+  delete photoCache[wid];
+  try{const db=await _openPDB();await new Promise(res=>{const tx=db.transaction('photos','readwrite');tx.objectStore('photos').delete(playerConfig.current+'_'+wid);tx.oncomplete=res;tx.onerror=res;});}catch(e){}
+}
+async function clearPhotosForPlayer(pid){
+  if(pid===playerConfig.current)photoCache={};
+  try{const db=await _openPDB();await new Promise(res=>{const tx=db.transaction('photos','readwrite');const prefix=pid+'_';tx.objectStore('photos').delete(IDBKeyRange.bound(prefix,prefix+'￿'));tx.oncomplete=res;tx.onerror=res;});}catch(e){}
+}
+async function migratePhotosIfNeeded(){
+  if(!state.photos||Object.keys(state.photos).length===0){delete state.photos;return;}
+  try{
+    const db=await _openPDB();
+    const tx=db.transaction('photos','readwrite');
+    const store=tx.objectStore('photos');
+    const pid=playerConfig.current;
+    for(const[wid,b64]of Object.entries(state.photos)){store.put(b64,pid+'_'+wid);photoCache[wid]=b64;}
+    await new Promise((res,rej)=>{tx.oncomplete=res;tx.onerror=rej;});
+    delete state.photos;save();
+  }catch(e){photoCache={...state.photos};}
+}
 
 /* ===== ストレージ ===== */
 let state=null,seq=1;
 function uid(){return"w"+(seq++);}
 function getCK(unitId,e){return unitId+"|"+norm(e);}
 function ensureCK(){state.units.forEach(u=>u.words.forEach(w=>{if(!w.ck)w.ck=getCK(u.id,w.e);}));}
-function seed(){state={seq:1,units:[],prog:{},photos:{}};DEFAULTS.forEach((u)=>{const unit={id:u[0],name:u[1],words:[]};u[2].forEach(w=>{const id=uid();unit.words.push({id,e:w[0],j:w[1],ck:getCK(u[0],w[0])});});state.units.push(unit);});state.seq=seq;}
-function load(){try{const r=localStorage.getItem(dataKey());if(r){state=JSON.parse(r);seq=state.seq||1;if(!state.photos)state.photos={};if(!state.prog)state.prog={};ensureCK();return;}}catch(e){}state={seq:1,units:[],prog:{},photos:{}};seq=1;}
-function save(){state.seq=seq;try{localStorage.setItem(dataKey(),JSON.stringify(state));}catch(e){alert("ほぞんできませんでした。写真が多いかもしれません。バックアップを取ってから写真を減らしてください。");}}
+function seed(){state={seq:1,units:[],prog:{}};DEFAULTS.forEach((u)=>{const unit={id:u[0],name:u[1],words:[]};u[2].forEach(w=>{const id=uid();unit.words.push({id,e:w[0],j:w[1],ck:getCK(u[0],w[0])});});state.units.push(unit);});state.seq=seq;}
+function load(){try{const r=localStorage.getItem(dataKey());if(r){state=JSON.parse(r);seq=state.seq||1;if(!state.prog)state.prog={};ensureCK();return;}}catch(e){}state={seq:1,units:[],prog:{}};seq=1;}
+function save(){state.seq=seq;try{const s={...state};delete s.photos;localStorage.setItem(dataKey(),JSON.stringify(s));}catch(e){alert("ほぞんできませんでした。バックアップを取ってください。");}}
 initPlayers();load();
 
 let view="quiz",scope=state.units[0]?state.units[0].id:"all",queue=[],cur=null,answered=false;
@@ -486,7 +537,7 @@ function buildQueue(){const pool=scopeWords();let w=[];pool.forEach(it=>{const s
 function nextCard(){if(scopeWords().length===0){renderEmptyQuiz();return;}if(queue.length===0)buildQueue();let p=queue.shift();if(cur&&p&&p.w.id===cur.w.id&&queue.length>0){queue.push(p);p=queue.shift();}cur=p;renderQuiz();}
 function renderEmptyQuiz(){document.getElementById("qTag").textContent="";document.getElementById("qStat").textContent="";document.getElementById("qPic").innerHTML='<div class="ph">単語がありません<br>「いちらん」で追加してね</div>';document.getElementById("ansInput").style.display="none";document.getElementById("answerBtns").style.display="none";}
 const SL={new:["みがくしゅう","var(--new)","#fff"],learn:["まだ","var(--learn)","#fff"],known:["おぼえた","var(--known)","#fff"]};
-function picHtml(id,big){const p=state.photos[id];if(p)return`<img src="${p}" alt="">`;return`<div class="ph"><b>📷</b>${big?"写真をつけよう":""}</div>`;}
+function picHtml(id,big){const p=photoCache[id];if(p)return`<img src="${p}" alt="">`;return`<div class="ph"><b>📷</b>${big?"写真をつけよう":""}</div>`;}
 function renderQuiz(){if(!cur){nextCard();return;}answered=false;const c=document.getElementById("quizCard");c.classList.remove("pop");void c.offsetWidth;c.classList.add("pop");document.getElementById("qTag").textContent=cur.u.id+" "+cur.u.name;const s=SL[statusOf(cur.w.id)];const st=document.getElementById("qStat");st.textContent=s[0];st.style.background=s[1];st.style.color=s[2];document.getElementById("qPic").innerHTML=picHtml(cur.w.id,true);document.getElementById("qHintText").textContent=cur.w.j;document.getElementById("qHint").classList.add("hidden");const inp=document.getElementById("ansInput");inp.style.display="";inp.value="";inp.className="ans";inp.disabled=false;document.getElementById("feedback").textContent="";document.getElementById("feedback").style.color="";document.getElementById("answerBtns").style.display="flex";document.getElementById("nextBtns").style.display="none";document.getElementById("readBtn").style.display="none";}
 function toggleHint(){document.getElementById("qHint").classList.toggle("hidden");}
 function speak(text){const u=new SpeechSynthesisUtterance(text.split("/")[0].trim());u.lang="en-US";u.rate=0.9;speechSynthesis.cancel();speechSynthesis.speak(u);}
@@ -508,14 +559,14 @@ function esc(s){return(s||"").replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':
 
 /* 編集シート */
 let edId=null,edStatus="new",edNew=false,newUnitTarget=null,pendingPhoto=null;
-function openSheet(id){const f=findWord(id);if(!f)return;edId=id;edNew=false;edStatus=statusOf(id);document.getElementById("edTitle").textContent="たんごを へんしゅう";document.getElementById("edEng").value=f.w.e;document.getElementById("edJp").value=f.w.j;document.getElementById("edPic").innerHTML=state.photos[id]?`<img src="${state.photos[id]}">`:`<div class="ph"><b>📷</b>まだ写真がありません</div>`;document.getElementById("delRow").style.display="";paintEdStatus();document.getElementById("sheetBg").classList.add("show");}
+function openSheet(id){const f=findWord(id);if(!f)return;edId=id;edNew=false;edStatus=statusOf(id);document.getElementById("edTitle").textContent="たんごを へんしゅう";document.getElementById("edEng").value=f.w.e;document.getElementById("edJp").value=f.w.j;document.getElementById("edPic").innerHTML=photoCache[id]?`<img src="${photoCache[id]}">`:`<div class="ph"><b>📷</b>まだ写真がありません</div>`;document.getElementById("delRow").style.display="";paintEdStatus();document.getElementById("sheetBg").classList.add("show");}
 function addWord(uid){newUnitTarget=uid;edId=null;edNew=true;edStatus="new";document.getElementById("edTitle").textContent="あたらしい たんご";document.getElementById("edEng").value="";document.getElementById("edJp").value="";document.getElementById("edPic").innerHTML=`<div class="ph"><b>📷</b>写真をつけられます</div>`;document.getElementById("delRow").style.display="none";paintEdStatus();document.getElementById("sheetBg").classList.add("show");}
 function setEdStatus(s){edStatus=s;paintEdStatus();}
 function paintEdStatus(){document.querySelectorAll("#edStatus button").forEach(b=>b.classList.toggle("on",b.dataset.s===edStatus));}
 function closeSheet(){document.getElementById("sheetBg").classList.remove("show");pendingPhoto=null;}
 document.getElementById("sheetBg").addEventListener("click",e=>{if(e.target.id==="sheetBg")closeSheet();});
-function saveSheet(){const e=document.getElementById("edEng").value.trim();const j=document.getElementById("edJp").value.trim();if(!e){alert("えいごを入れてね");return;}if(edNew){const u=state.units.find(x=>x.id===newUnitTarget);const id=uid();u.words.push({id,e,j,ck:getCK(u.id,e)});if(pendingPhoto)state.photos[id]=pendingPhoto;state.prog[id]=edStatus;}else{const f=findWord(edId);f.w.e=e;f.w.j=j;f.w.ck=getCK(f.u.id,e);if(pendingPhoto)state.photos[edId]=pendingPhoto;state.prog[edId]=edStatus;}pendingPhoto=null;save();closeSheet();renderChips();renderProgress();if(view==="list")renderList();else if(view==="quiz"&&cur&&edId===cur.w.id)renderQuiz();}
-function deleteWord(){if(!edId)return;const f=findWord(edId);if(!confirm("「"+f.w.e+"」をけしますか？"))return;f.u.words=f.u.words.filter(w=>w.id!==edId);delete state.prog[edId];delete state.photos[edId];save();closeSheet();renderChips();renderProgress();if(view==="list")renderList();else if(view==="quiz"){cur=null;nextCard();}}
+async function saveSheet(){const e=document.getElementById("edEng").value.trim();const j=document.getElementById("edJp").value.trim();if(!e){alert("えいごを入れてね");return;}if(edNew){const u=state.units.find(x=>x.id===newUnitTarget);const id=uid();u.words.push({id,e,j,ck:getCK(u.id,e)});if(pendingPhoto)await savePhotoDB(id,pendingPhoto);state.prog[id]=edStatus;}else{const f=findWord(edId);f.w.e=e;f.w.j=j;f.w.ck=getCK(f.u.id,e);if(pendingPhoto)await savePhotoDB(edId,pendingPhoto);state.prog[edId]=edStatus;}pendingPhoto=null;save();closeSheet();renderChips();renderProgress();if(view==="list")renderList();else if(view==="quiz"&&cur&&edId===cur.w.id)renderQuiz();}
+async function deleteWord(){if(!edId)return;const f=findWord(edId);if(!confirm("「"+f.w.e+"」をけしますか？"))return;f.u.words=f.u.words.filter(w=>w.id!==edId);delete state.prog[edId];await deletePhotoDB(edId);save();closeSheet();renderChips();renderProgress();if(view==="list")renderList();else if(view==="quiz"){cur=null;nextCard();}}
 
 /* 圧縮 */
 function compress(img,sx,sy,sw,sh,max){const sc=Math.min(1,max/Math.max(sw,sh));const w=Math.round(sw*sc),h=Math.round(sh*sc);const cv=document.createElement("canvas");cv.width=w;cv.height=h;const ctx=cv.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,w,h);ctx.drawImage(img,sx,sy,sw,sh,0,0,w,h);return cv.toDataURL("image/jpeg",0.72);}
@@ -527,16 +578,16 @@ function datestamp(){const d=new Date();return d.getFullYear()+("0"+(d.getMonth(
 
 function exportQuestions(){
   ensureCK();
-  const photos={};state.units.forEach(u=>u.words.forEach(w=>{if(state.photos[w.id])photos[w.id]=state.photos[w.id];}));
+  const photos={};state.units.forEach(u=>u.words.forEach(w=>{if(photoCache[w.id])photos[w.id]=photoCache[w.id];}));
   dlJson({type:"questions",seq:state.seq,units:state.units,photos},"eitango-mondai-"+datestamp()+".json");
 }
 function exportFull(){
-  dlJson({type:"full",seq:state.seq,units:state.units,photos:state.photos,prog:state.prog},"eitango-backup-"+datestamp()+".json");
+  dlJson({type:"full",seq:state.seq,units:state.units,photos:photoCache,prog:state.prog},"eitango-backup-"+datestamp()+".json");
 }
 
 /* ===== 取り込み ===== */
 /* 問題データをマージ（進捗を保持） */
-function mergeQuestions(incoming){
+async function mergeQuestions(incoming){
   ensureCK();
   const {units:inUnits,photos:inPhotos,deletions}=incoming;
   // 削除指定があれば先に処理
@@ -544,7 +595,7 @@ function mergeQuestions(incoming){
     deletions.forEach(ck=>{
       state.units.forEach(u=>{
         const idx=u.words.findIndex(w=>(w.ck||getCK(u.id,w.e))===ck);
-        if(idx>=0){const [rm]=u.words.splice(idx,1);delete state.prog[rm.id];delete state.photos[rm.id];}
+        if(idx>=0){const [rm]=u.words.splice(idx,1);delete state.prog[rm.id];await deletePhotoDB(rm.id);}
       });
     });
   }
@@ -552,29 +603,27 @@ function mergeQuestions(incoming){
   const byKey={};
   state.units.forEach(u=>u.words.forEach(w=>{byKey[w.ck||getCK(u.id,w.e)]={u,w};}));
 
-  inUnits.forEach(inUnit=>{
+  for(const inUnit of inUnits){
     let unit=state.units.find(u=>u.id===inUnit.id);
     if(!unit){unit={id:inUnit.id,name:inUnit.name,words:[]};state.units.push(unit);}
     else unit.name=inUnit.name;
 
-    (inUnit.words||[]).forEach(inWord=>{
+    for(const inWord of (inUnit.words||[])){
       const ck=getCK(inUnit.id,inWord.e);
       if(byKey[ck]){
-        // 既存の単語：英語・日本語・写真だけ更新、進捗はそのまま
         const {w}=byKey[ck];
         w.e=inWord.e;w.j=inWord.j;w.ck=ck;
-        if(inPhotos&&inPhotos[inWord.id])state.photos[w.id]=inPhotos[inWord.id];
+        if(inPhotos&&inPhotos[inWord.id])await savePhotoDB(w.id,inPhotos[inWord.id]);
       }else{
-        // 新しい単語：追加
         const id=uid();
         const nw={id,e:inWord.e,j:inWord.j,ck};
         unit.words.push(nw);
-        if(inPhotos&&inPhotos[inWord.id])state.photos[id]=inPhotos[inWord.id];
+        if(inPhotos&&inPhotos[inWord.id])await savePhotoDB(id,inPhotos[inWord.id]);
         state.prog[id]="new";
         byKey[ck]={u:unit,w:nw};
       }
-    });
-  });
+    }
+  }
   state.seq=seq;save();
 }
 
@@ -582,7 +631,7 @@ function mergeQuestions(incoming){
 document.getElementById("importQFile").addEventListener("change",function(){
   const f=this.files[0];this.value="";if(!f)return;
   const r=new FileReader();
-  r.onload=e=>{
+  r.onload=async e=>{
     try{
       const obj=JSON.parse(e.target.result);
       if(!obj.units)throw 0;
@@ -596,7 +645,7 @@ document.getElementById("importQFile").addEventListener("change",function(){
         (updated.length?`🔄 写真・日本語を更新：${updated.length}語\n\n`:"")+
         `${currentPlayerName()}の進捗（覚えた／まだ）はそのまま残ります。\n取り込みますか？`;
       if(!confirm(msg))return;
-      mergeQuestions(obj);renderAll();
+      await mergeQuestions(obj);renderAll();
       alert("✅ 取り込み完了！\n新しい単語や写真が追加されました。\n"+currentPlayerName()+"の進捗はそのままです。");
     }catch(err){alert("このファイルを読み込めませんでした。「問題データ」か「全バックアップ」のファイルをえらんでください。");}
   };r.readAsText(f);
@@ -606,13 +655,17 @@ document.getElementById("importQFile").addEventListener("change",function(){
 document.getElementById("importFFile").addEventListener("change",function(){
   const f=this.files[0];this.value="";if(!f)return;
   const r=new FileReader();
-  r.onload=e=>{
+  r.onload=async e=>{
     try{
       const obj=JSON.parse(e.target.result);
       if(!obj.units)throw 0;
       if(!confirm("⚠️ 全データを復元します。\n単語・写真・進捗がすべて置きかわります。\nよろしいですか？"))return;
-      state=obj;seq=state.seq||1;if(!state.photos)state.photos={};if(!state.prog)state.prog={};
-      ensureCK();scope="all";save();renderAll();
+      const inPhotos=obj.photos||{};
+      state={seq:obj.seq||1,units:obj.units||[],prog:obj.prog||{}};
+      seq=state.seq;ensureCK();
+      await clearPhotosForPlayer(playerConfig.current);
+      for(const[wid,b64]of Object.entries(inPhotos))await savePhotoDB(wid,b64);
+      scope="all";save();renderAll();
       alert("復元しました！");
     }catch(err){alert("このファイルは読めませんでした。");}
   };r.readAsText(f);
@@ -621,7 +674,7 @@ document.getElementById("importFFile").addEventListener("change",function(){
 /* 単元管理 */
 function renderUnitList(){document.getElementById("unitList").innerHTML=state.units.map(u=>`<div class="urow">${u.id} <span style="color:var(--muted);font-weight:700;font-size:12px">${esc(u.name)}（${u.words.length}語）</span><button class="x" onclick="delUnit('${u.id}')">けす</button></div>`).join("");}
 function addUnit(){const id=document.getElementById("newUnitId").value.trim();const nm=document.getElementById("newUnitName").value.trim()||" ";if(!id){alert("単元の名前（例：No.12）を入れてね");return;}if(state.units.some(u=>u.id===id)){alert("その名前はもうあります");return;}state.units.push({id,name:nm,words:[]});save();document.getElementById("newUnitId").value="";document.getElementById("newUnitName").value="";renderUnitList();renderChips();}
-function delUnit(id){const u=state.units.find(x=>x.id===id);if(!u)return;if(!confirm("単元「"+id+"」と中の単語ぜんぶをけしますか？"))return;u.words.forEach(w=>{delete state.prog[w.id];delete state.photos[w.id];});state.units=state.units.filter(x=>x.id!==id);if(scope===id)scope="all";save();renderUnitList();renderChips();renderProgress();}
+async function delUnit(id){const u=state.units.find(x=>x.id===id);if(!u)return;if(!confirm("単元「"+id+"」と中の単語ぜんぶをけしますか？"))return;for(const w of u.words){delete state.prog[w.id];await deletePhotoDB(w.id);}state.units=state.units.filter(x=>x.id!==id);if(scope===id)scope="all";save();renderUnitList();renderChips();renderProgress();}
 
 /* ビュー切替・リセット */
 function renderStorageInfo(){
@@ -631,36 +684,43 @@ function renderStorageInfo(){
   const players=playerConfig.players.map((p,i)=>{
     const raw=localStorage.getItem("eitango_data_"+p.id)||"";
     const kb=Math.round(raw.length/512);
-    return{name:p.name,kb,color:COLORS[i%COLORS.length]};
+    return{name:p.name,kb,color:COLORS[i%COLORS.length],isCurrent:p.id===playerConfig.current};
   });
   const totalKb=players.reduce((s,p)=>s+p.kb,0);
   const totalPct=Math.min(100,Math.round(totalKb/LIMIT_KB*100));
   const warnColor=totalPct>=80?"var(--learn)":totalPct>=60?"#f5a623":"var(--green)";
-  const segs=players.map(p=>{
-    const w=Math.max(0,Math.round(p.kb/LIMIT_KB*100));
-    return w>0?`<div style="width:${w}%;background:${p.color};height:100%"></div>`:"";
-  }).join("");
+  const segs=players.map(p=>{const w=Math.max(0,Math.round(p.kb/LIMIT_KB*100));return w>0?`<div style="width:${w}%;background:${p.color};height:100%"></div>`:""}).join("");
   const legend=players.map(p=>`<div style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700">
     <span style="width:12px;height:12px;border-radius:3px;background:${p.color};flex-shrink:0;display:inline-block"></span>
     <span style="flex:1">${esc(p.name)}</span>
-    <span style="color:${p.kb/LIMIT_KB>=0.8?"var(--learn)":p.kb/LIMIT_KB>=0.6?"#f5a623":"var(--txt)"}">${disp(p.kb)}</span>
+    <span style="color:var(--muted)">${disp(p.kb)} <small style="font-weight:600">(テキスト)</small></span>
   </div>`).join("");
+  const photoCacheKb=Math.round(Object.values(photoCache).reduce((s,v)=>s+v.length,0)/512);
+  const photoCount=Object.keys(photoCache).length;
   document.getElementById("storageInfo").innerHTML=`
+    <div style="font-size:12px;font-weight:700;margin-bottom:6px;color:var(--muted)">テキストデータ (localStorage)</div>
     <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:4px">
       <span>ごうけい <span style="color:${warnColor}">${disp(totalKb)}</span> / 5MB</span>
-      <span style="color:${warnColor}">${totalPct}% 使用中${totalPct>=80?" ⚠️":""}</span>
+      <span style="color:${warnColor}">${totalPct}%${totalPct>=80?" ⚠️":""}</span>
     </div>
-    <div style="background:var(--line);border-radius:99px;height:18px;overflow:hidden;display:flex;margin-bottom:10px">${segs}</div>
-    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">${legend}</div>
-    <p style="margin:0;font-size:11px;color:var(--muted)">※ Safari は1アプリ約5MBまで。写真が多いと上限に近づきます。不要なセットを「セットをけす」で削除すると空き容量が増えます。</p>`;
+    <div style="background:var(--line);border-radius:99px;height:14px;overflow:hidden;display:flex;margin-bottom:8px">${segs}</div>
+    <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px">${legend}</div>
+    <div style="border-top:1px solid var(--line);padding-top:10px;font-size:12px;font-weight:700">
+      <div style="display:flex;justify-content:space-between;color:var(--green)">
+        <span>📷 写真 (IndexedDB・制限なし)</span>
+        <span>${photoCount}枚 / 約${disp(photoCacheKb)}</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">写真は IndexedDB に保存済み。5MB制限の対象外です。</div>
+    </div>`;
 }
 function setView(v){view=v;document.getElementById("tabQuiz").classList.toggle("on",v==="quiz");document.getElementById("tabList").classList.toggle("on",v==="list");document.getElementById("settingsBtn").classList.toggle("on",v==="manage");document.getElementById("quizView").style.display=v==="quiz"?"":"none";document.getElementById("listView").style.display=v==="list"?"":"none";document.getElementById("manageView").style.display=v==="manage"?"":"none";if(v==="quiz"){if(!cur)nextCard();else renderQuiz();}else if(v==="list")renderList();else{renderUnitList();renderStorageInfo();}}
 function resetScope(){const label=scope==="all"?"ぜんぶ":scope;if(!confirm(label+" の学習記録を0%にもどします。よろしいですか？"))return;scopeWords().forEach(({w})=>{delete state.prog[w.id];});save();cur=null;queue=[];renderProgress();renderChips();if(view==="quiz")nextCard();}
 function resetAllProgress(){if(!confirm("ぜんぶの学習記録を消します。単語・写真は残ります。よろしいですか？"))return;state.prog={};save();renderAll();}
-function deleteAllData(){
+async function deleteAllData(){
   if(!confirm("⚠️ 全データを削除します。\n\n単語・写真・進捗がすべて削除されます。\n削除すると、再度取り込まない限り元に戻せません。\n\nそれでもよいですか？"))return;
   if(!confirm("本当に削除しますか？\nこの操作は取り消せません。"))return;
-  state={seq:1,units:[],prog:{},photos:{}};seq=1;scope="all";cur=null;queue=[];
+  await clearPhotosForPlayer(playerConfig.current);
+  state={seq:1,units:[],prog:{}};seq=1;scope="all";cur=null;queue=[];
   save();renderAll();
   alert("削除しました。");
 }
@@ -676,7 +736,7 @@ function analyze(img){const maxD=1100,sc=Math.min(1,maxD/Math.max(img.width,img.
 let Tprom=null;function loadOCR(){if(Tprom)return Tprom;Tprom=new Promise((res,rej)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";s.onload=res;s.onerror=()=>rej(new Error("net"));document.head.appendChild(s);});return Tprom;}
 async function ocrWord(canvas){await loadOCR();const{data}=await Tesseract.recognize(canvas,"eng");let lines=(data.text||"").split("\n").map(s=>s.trim()).filter(Boolean);const alpha=s=>(s.match(/[a-zA-Z]/g)||[]).length;lines.sort((a,b)=>alpha(b)-alpha(a));return(lines[0]||"").toLowerCase().replace(/[^a-z /]/g," ").replace(/\s+/g," ").trim();}
 document.getElementById("autoFile").addEventListener("change",function(){const file=this.files[0];this.value="";if(!file)return;const status=document.getElementById("autoStatus");status.innerHTML='<span class="spin"></span>絵を切り抜き中…';const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=async()=>{let res;try{res=analyze(img);}catch(err){res={picData:compress(img,0,0,img.width,img.height,380),labelCanvas:(()=>{const c=document.createElement('canvas');c.width=img.width;c.height=Math.round(img.height*0.2);c.getContext('2d').drawImage(img,0,Math.round(img.height*0.8),img.width,Math.round(img.height*0.2),0,0,img.width,Math.round(img.height*0.2));return c;})(),ok:false};autoFullData=res.picData;}autoCropData=res.picData;autoUseFullFlag=false;document.getElementById("autoPic").innerHTML=`<img src="${autoCropData}">`;document.getElementById("autoSwap").style.display="flex";document.getElementById("swCrop").classList.add("on");document.getElementById("swFull").classList.remove("on");status.innerHTML='<span class="spin"></span>英語をよみとり中…（初回は少し時間がかかります）';try{const word=await ocrWord(res.labelCanvas);if(word){document.getElementById("autoEng").value=word;const jp=translate(word);if(jp)document.getElementById("autoJp").value=jp;status.textContent=jp?"✓ 英語と日本語をセットしました（直せます）":"✓ 英語をセット。日本語は入力してね";}else{status.textContent="文字をうまく読めませんでした。英語を入力してね";}}catch(err){status.textContent="⚠️ 文字よみとりはネット接続が必要です。英語を入力してね（絵は登録できます）";}};img.src=e.target.result;};r.readAsDataURL(file);});
-function saveAuto(){const e=document.getElementById("autoEng").value.trim();const j=document.getElementById("autoJp").value.trim();const unitId=document.getElementById("autoUnit").value;if(!autoCropData){alert("写真をえらんでね");return;}if(!e){alert("えいごを入れてね");return;}const u=state.units.find(x=>x.id===unitId);if(!u){alert("単元をえらんでね");return;}const id=uid();const ck=getCK(unitId,e);u.words.push({id,e,j,ck});state.photos[id]=autoUseFullFlag?autoFullData:autoCropData;state.prog[id]="new";save();renderChips();renderProgress();document.getElementById("autoStatus").textContent="✅ 「"+e+"」を登録！つぎのカードもどうぞ";autoCropData=null;autoFullData=null;document.getElementById("autoPic").innerHTML=`<div class="ph"><b>📷</b>つぎのカードをえらんでね</div>`;document.getElementById("autoSwap").style.display="none";document.getElementById("autoEng").value="";document.getElementById("autoJp").value="";if(view==="list")renderList();}
+async function saveAuto(){const e=document.getElementById("autoEng").value.trim();const j=document.getElementById("autoJp").value.trim();const unitId=document.getElementById("autoUnit").value;if(!autoCropData){alert("写真をえらんでね");return;}if(!e){alert("えいごを入れてね");return;}const u=state.units.find(x=>x.id===unitId);if(!u){alert("単元をえらんでね");return;}const id=uid();const ck=getCK(unitId,e);u.words.push({id,e,j,ck});await savePhotoDB(id,autoUseFullFlag?autoFullData:autoCropData);state.prog[id]="new";save();renderChips();renderProgress();document.getElementById("autoStatus").textContent="✅ 「"+e+"」を登録！つぎのカードもどうぞ";autoCropData=null;autoFullData=null;document.getElementById("autoPic").innerHTML=`<div class="ph"><b>📷</b>つぎのカードをえらんでね</div>`;document.getElementById("autoSwap").style.display="none";document.getElementById("autoEng").value="";document.getElementById("autoJp").value="";if(view==="list")renderList();}
 
 /* プレイヤーモーダル */
 function openPlayerModal(){renderPlayerModal();document.getElementById("playerModalBg").style.display="flex";}
@@ -686,14 +746,14 @@ function currentPlayerName(){const p=playerConfig.players.find(x=>x.id===playerC
 function renderPlayerDisplay(){const name=currentPlayerName();document.getElementById("playerNameDisplay").textContent=name;const el=document.getElementById("exportHelpName");if(el)el.textContent=name;}
 function addPlayerFromModal(){const name=document.getElementById("newPlayerName").value.trim();if(!name)return;addPlayer(name);document.getElementById("newPlayerName").value="";}
 
-renderChips();renderProgress();renderPlayerDisplay();nextCard();
+(async()=>{photoCache=await loadPhotosForPlayer(playerConfig.current);await migratePhotosIfNeeded();renderChips();renderProgress();renderPlayerDisplay();nextCard();})();
 
 /* ===== 対戦モード ===== */
 let bts = null;
 
 function getPS(pid){
-  try{const r=localStorage.getItem("eitango_data_"+pid);if(r){const s=JSON.parse(r);if(!s.photos)s.photos={};if(!s.units)s.units=[];return s;}}catch(e){}
-  return{seq:1,units:[],prog:{},photos:{}};
+  try{const r=localStorage.getItem("eitango_data_"+pid);if(r){const s=JSON.parse(r);if(!s.units)s.units=[];return s;}}catch(e){}
+  return{seq:1,units:[],prog:{}};
 }
 
 function openBattleSetup(){
@@ -800,7 +860,7 @@ function btRenderCovBgm(){
     opts.map(o=>`<button class="bt-tgl ${bts.bgm===o.k?'on':''}" style="padding:7px 10px" onclick="btSetBgm('${o.k}')">${o.l}</button>`).join('')+`</div>`;
 }
 
-function btGo(){
+async function btGo(){
   bts.players=bts.selPids.map(id=>playerConfig.players.find(p=>p.id===id)).filter(Boolean);
   bts.scores={};bts.queues={};
   bts.players.forEach(p=>{
@@ -813,6 +873,8 @@ function btGo(){
     while(pool.length<bts.perPlayer&&words.length>0)pool.push(...words);
     bts.queues[p.id]=pool.slice(0,bts.perPlayer);
   });
+  bts.photosByPid={};
+  for(const p of bts.players)bts.photosByPid[p.id]=await loadPhotosForPlayer(p.id);
   bts.turnIdx=0;
   if(_btPreviewTimer){clearTimeout(_btPreviewTimer);_btPreviewTimer=null;}
   document.getElementById('battleBg').style.display='none';
@@ -842,7 +904,7 @@ function btStartTurn(){
   const np=bts.players.length,p=bts.players[bts.turnIdx%np],qi=Math.floor(bts.turnIdx/np);
   const q=bts.queues[p.id][qi];
   bts.cur={...q,pid:p.id};bts.answered=false;
-  const ps=bts.pstates[p.id],photo=ps.photos[q.w.id];
+  const photo=(bts.photosByPid||{})[p.id]?.[q.w.id];
   document.getElementById('btQLabel').innerHTML=`⚔️ <b>${esc(p.name)}</b>  Q${qi+1}/${bts.perPlayer}`;
   document.getElementById('btQTag').textContent=q.u.id+' '+q.u.name;
   document.getElementById('btQPic').innerHTML=photo?`<img src="${photo}" alt="">`:
