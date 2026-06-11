@@ -880,6 +880,11 @@ function btShowResult(){
 document.getElementById('btAns').addEventListener('keydown',e=>{
   if(e.key==='Enter'){e.preventDefault();if(bts&&!bts.answered)btCheck();}
 });
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'||!bts)return;
+  if(document.getElementById('btCover').style.display==='flex'){e.preventDefault();btStartTurn();return;}
+  if(document.getElementById('btQuiz').style.display==='flex'&&bts.answered&&document.getElementById('btNbtn').style.display!=='none'){e.preventDefault();btNext();}
+});
 
 /* ===== 対戦 BGM / SE ===== */
 let _btAC=null,_btJob=null,_btNxt=0,_btIdx=0,_btPat=null,_btBpb=0,_btVol=0,_btWave='square';
