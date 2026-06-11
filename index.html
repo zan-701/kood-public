@@ -679,6 +679,7 @@ function openBattleSetup(){
 
 function closeBattle(){
   stopBtTimer();stopBtBgm();
+  if(_btPreviewTimer){clearTimeout(_btPreviewTimer);_btPreviewTimer=null;}
   ['battleBg','btCover','btQuiz','btResult'].forEach(id=>document.getElementById(id).style.display='none');
 }
 
@@ -705,7 +706,7 @@ function renderBtSetup(){
   });
   h+=`</div>`;
   h+=`<div class="bt-sec"><div class="bt-sec-ttl">1人あたりなんもん？</div><div class="bt-tgl-row">`;
-  [5,10,20,30].forEach(n=>h+=`<button class="bt-tgl ${bts.perPlayer===n?'on':''}" onclick="btSetN(${n})">${n}問</button>`);
+  [2,3,5,8,10,20,30].forEach(n=>h+=`<button class="bt-tgl ${bts.perPlayer===n?'on':''}" onclick="btSetN(${n})">${n}問</button>`);
   h+=`</div></div>`;
   h+=`<div class="bt-sec"><div class="bt-sec-ttl">せいげん じかん</div><div class="bt-tgl-row">`;
   [0,10,15,20,25,30,45,60].forEach(t=>h+=`<button class="bt-tgl ${bts.timeLim===t?'on':''}" onclick="btSetT(${t})">${t===0?'無制限':t+'秒'}</button>`);
@@ -738,6 +739,18 @@ function btSetBgm(key){
   if(!bts)return;bts.bgm=key;
   if(document.getElementById('battleBg').style.display!=='none')renderBtSetup();
   btRenderCovBgm();
+  // 5秒プレビュー
+  if(_btPreviewTimer){clearTimeout(_btPreviewTimer);_btPreviewTimer=null;}
+  if(key!=='off'){
+    startBtBgm('quiz');
+    _btPreviewTimer=setTimeout(()=>{
+      _btPreviewTimer=null;stopBtBgm();
+      if(document.getElementById('battleBg').style.display!=='none')startBtBgm('setup');
+    },5000);
+  }else{
+    stopBtBgm();
+    if(document.getElementById('battleBg').style.display!=='none')startBtBgm('setup');
+  }
 }
 function btRenderCovBgm(){
   const el=document.getElementById('btCovBgm');if(!el||!bts)return;
@@ -760,6 +773,7 @@ function btGo(){
     bts.queues[p.id]=pool.slice(0,bts.perPlayer);
   });
   bts.turnIdx=0;
+  if(_btPreviewTimer){clearTimeout(_btPreviewTimer);_btPreviewTimer=null;}
   document.getElementById('battleBg').style.display='none';
   stopBtBgm();btShowCover();
 }
@@ -782,6 +796,7 @@ function btShowCover(){
 }
 
 function btStartTurn(){
+  if(_btPreviewTimer){clearTimeout(_btPreviewTimer);_btPreviewTimer=null;stopBtBgm();}
   document.getElementById('btCover').style.display='none';
   const np=bts.players.length,p=bts.players[bts.turnIdx%np],qi=Math.floor(bts.turnIdx/np);
   const q=bts.queues[p.id][qi];
@@ -906,7 +921,7 @@ document.addEventListener('keydown',e=>{
 });
 
 /* ===== 対戦 BGM / SE ===== */
-let _btAC=null,_btJob=null,_btNxt=0,_btIdx=0,_btPat=null,_btBpb=0,_btVol=0,_btWave='square';
+let _btAC=null,_btJob=null,_btNxt=0,_btIdx=0,_btPat=null,_btBpb=0,_btVol=0,_btWave='square',_btPreviewTimer=null;
 function _btACtx(){
   if(!_btAC||_btAC.state==='closed')_btAC=new(window.AudioContext||window.webkitAudioContext)();
   if(_btAC.state==='suspended')_btAC.resume();
