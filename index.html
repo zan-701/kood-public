@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="えいたんご">
+<meta name="theme-color" content="#ff8a3d">
+<link rel="manifest" href="/kood/manifest.json">
+<link rel="apple-touch-icon" href="/kood/icon-180.png">
 <title>えいたんご れんしゅう</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1133,6 +1138,14 @@ function playBtDraw(){
 }
 
 function confetti(){const cs=["#ff8a3d","#3bb273","#4aa3df","#ffd23f","#ff6b6b"];for(let i=0;i<16;i++){const c=document.createElement("div");c.className="confetti";c.style.left=Math.random()*100+"vw";c.style.background=cs[i%cs.length];c.style.animation="fall "+(0.9+Math.random()*0.7)+"s ease-in "+Math.random()*0.2+"s forwards";document.body.appendChild(c);setTimeout(()=>c.remove(),2000);}}
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/kood/sw.js')
+      .catch(()=>{});
+  });
+}
 </script>
 </body>
 </html>
