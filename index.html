@@ -111,8 +111,9 @@
   .statusrow button.on.snew{border-color:var(--new);color:var(--ink);background:#f6f0e8;}
   .statusrow button.on.slearn{border-color:var(--learn);color:#fff;background:var(--learn);}
   .statusrow button.on.sknown{border-color:var(--known);color:#fff;background:var(--known);}
-  .delrow{margin-top:14px;text-align:center;}
-  .delrow button{background:none;border:none;color:var(--learn);font-family:inherit;font-weight:800;font-size:13px;text-decoration:underline;cursor:pointer;}
+  .delrow{margin-top:10px;}
+  .delrow button{width:100%;padding:13px;background:#fff0f0;border:2px solid var(--learn);color:var(--learn);font-family:inherit;font-weight:800;font-size:14px;border-radius:14px;cursor:pointer;}
+  .unit-del-btn{background:none;border:1.5px solid var(--learn);color:var(--learn);font-family:inherit;font-weight:800;font-size:11px;border-radius:8px;padding:3px 8px;cursor:pointer;white-space:nowrap;}
   .statusline{font-size:13px;font-weight:800;color:var(--blue);min-height:20px;margin:2px 0 8px;text-align:center;}
   .miniswap{display:flex;gap:8px;margin-bottom:6px;}
   .miniswap button{flex:1;border:2px solid var(--line);background:#fff;border-radius:12px;font-family:inherit;font-weight:800;font-size:12px;padding:9px 0;cursor:pointer;color:var(--muted);}
@@ -250,6 +251,13 @@
       <p>覚えた／まだ の記録を消します（単語・写真は残ります）。</p>
       <button class="minibtn" style="width:100%;color:var(--learn);border-color:var(--learn)" onclick="resetAllProgress()">ぜんぶの 学習記録を リセット</button>
     </div>
+
+    <!-- 全削除 -->
+    <div class="panel" style="border-color:var(--learn)">
+      <h3>⛔ 全データを削除</h3>
+      <p>単語・写真・進捗をすべて削除します。<br><b style="color:var(--learn)">削除すると、再度取り込まない限り元に戻せません。</b></p>
+      <button class="minibtn" style="width:100%;color:var(--learn);border-color:var(--learn);background:#fff0f0" onclick="deleteAllData()">⛔ 全データをさくじょ</button>
+    </div>
   </div>
 </div>
 
@@ -269,7 +277,7 @@
     <button data-s="known" class="sknown" onclick="setEdStatus('known')">おぼえた</button>
   </div>
   <div class="btns" style="margin-top:16px"><button class="btn ghost" onclick="closeSheet()">とじる</button><button class="btn green" onclick="saveSheet()">ほぞん</button></div>
-  <div class="delrow" id="delRow"><button onclick="deleteWord()">この単語をけす</button></div>
+  <div class="delrow" id="delRow"><button onclick="deleteWord()">🗑️ この単語をけす</button></div>
 </div></div>
 
 <!-- 自動ついかシート -->
@@ -394,7 +402,7 @@ document.getElementById("ansInput").addEventListener("keydown",e=>{if(e.key==="E
 document.getElementById("qAddPhoto").addEventListener("click",()=>{if(cur)openSheet(cur.w.id);});
 
 /* いちらん */
-function renderList(){const body=document.getElementById("listBody");let units=scope==="all"?state.units:state.units.filter(u=>u.id===scope);let h="";if(scope==="all"){const ls=[];state.units.forEach(u=>u.words.forEach(w=>{if(statusOf(w.id)==="learn")ls.push({u,w});}));if(ls.length)h+=`<div class="secttitle"><span>🔥 にがてな たんご</span><span>${ls.length}こ</span></div><div class="grid">`+ls.map(it=>cellHtml(it.w)).join("")+`</div>`;}units.forEach(u=>{h+=`<div class="secttitle"><span>${u.id} ${u.name}</span><span>${knownIn(u)}/${u.words.length}</span></div><div class="grid">`+u.words.map(w=>cellHtml(w)).join("")+`</div><button class="addword" onclick="addWord('${u.id}')">＋ 「${u.id}」に単語をついか</button>`;});body.innerHTML=h;}
+function renderList(){const body=document.getElementById("listBody");let units=scope==="all"?state.units:state.units.filter(u=>u.id===scope);let h="";if(scope==="all"){const ls=[];state.units.forEach(u=>u.words.forEach(w=>{if(statusOf(w.id)==="learn")ls.push({u,w});}));if(ls.length)h+=`<div class="secttitle"><span>🔥 にがてな たんご</span><span>${ls.length}こ</span></div><div class="grid">`+ls.map(it=>cellHtml(it.w)).join("")+`</div>`;}units.forEach(u=>{h+=`<div class="secttitle"><span>${u.id} ${esc(u.name)}</span><span style="display:flex;align-items:center;gap:6px"><span>${knownIn(u)}/${u.words.length}</span><button class="unit-del-btn" onclick="delUnit('${u.id}')">🗑️ セットをけす</button></span></div><div class="grid">`+u.words.map(w=>cellHtml(w)).join("")+`</div><button class="addword" onclick="addWord('${u.id}')">＋ 「${u.id}」に単語をついか</button>`;});body.innerHTML=h;}
 function cellHtml(w){const s=statusOf(w.id);const b=s==="known"?"✅":s==="learn"?"🔴":"⬜";return`<button class="cell s-${s}" onclick="openSheet('${w.id}')"><div class="thumb">${picHtml(w.id,false)}</div><div class="ct"><div class="cw">${esc(w.e)}</div><div class="cj">${esc(w.j)}</div></div><div class="badge">${b}</div></button>`;}
 function esc(s){return(s||"").replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
 
@@ -519,6 +527,13 @@ function delUnit(id){const u=state.units.find(x=>x.id===id);if(!u)return;if(!con
 function setView(v){view=v;document.getElementById("tabQuiz").classList.toggle("on",v==="quiz");document.getElementById("tabList").classList.toggle("on",v==="list");document.getElementById("tabMng").classList.toggle("on",v==="manage");document.getElementById("quizView").style.display=v==="quiz"?"":"none";document.getElementById("listView").style.display=v==="list"?"":"none";document.getElementById("manageView").style.display=v==="manage"?"":"none";if(v==="quiz"){if(!cur)nextCard();else renderQuiz();}else if(v==="list")renderList();else renderUnitList();}
 function resetScope(){const label=scope==="all"?"ぜんぶ":scope;if(!confirm(label+" の学習記録を0%にもどします。よろしいですか？"))return;scopeWords().forEach(({w})=>{delete state.prog[w.id];});save();cur=null;queue=[];renderProgress();renderChips();if(view==="quiz")nextCard();}
 function resetAllProgress(){if(!confirm("ぜんぶの学習記録を消します。単語・写真は残ります。よろしいですか？"))return;state.prog={};save();renderAll();}
+function deleteAllData(){
+  if(!confirm("⚠️ 全データを削除します。\n\n単語・写真・進捗がすべて削除されます。\n削除すると、再度取り込まない限り元に戻せません。\n\nそれでもよいですか？"))return;
+  if(!confirm("本当に削除しますか？\nこの操作は取り消せません。"))return;
+  state={seq:1,units:[],prog:{},photos:{}};seq=1;scope="all";cur=null;queue=[];
+  save();renderAll();
+  alert("削除しました。");
+}
 function renderAll(){renderChips();renderProgress();if(view==="quiz"){cur=null;nextCard();}else if(view==="list")renderList();else renderUnitList();}
 
 /* 自動ついか */
