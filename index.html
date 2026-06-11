@@ -878,7 +878,9 @@ function btShowResult(){
 }
 
 document.getElementById('btAns').addEventListener('keydown',e=>{
-  if(e.key==='Enter'){e.preventDefault();if(bts&&!bts.answered)btCheck();}
+  if(e.key!=='Enter')return;
+  e.preventDefault();e.stopPropagation();
+  if(bts&&!bts.answered)btCheck();
 });
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter'||!bts)return;
