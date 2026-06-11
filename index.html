@@ -136,6 +136,47 @@
   .pname{flex:1;background:none;border:none;font-family:inherit;font-weight:800;font-size:16px;color:var(--ink);cursor:pointer;text-align:left;}
   .prow.pon .pname{color:var(--accent-d);}
   .pedit{background:none;border:none;font-size:14px;cursor:pointer;padding:2px 4px;opacity:.6;}
+  /* ===== 対戦モード ===== */
+  #battleBg{position:fixed;inset:0;background:var(--bg);z-index:200;flex-direction:column;overflow:hidden;}
+  .bt-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;font-weight:800;font-size:16px;border-bottom:2px solid var(--line);flex-shrink:0;}
+  .bt-close{background:none;border:none;font-size:24px;color:var(--muted);cursor:pointer;line-height:1;padding:0;}
+  .bt-body{flex:1;overflow-y:auto;padding:14px 16px calc(32px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch;}
+  .bt-sec{margin-bottom:20px;}
+  .bt-sec-ttl{font-weight:800;font-size:12px;color:var(--muted);margin:0 2px 8px;text-transform:uppercase;letter-spacing:.04em;}
+  .bt-pgrid{display:flex;gap:8px;flex-wrap:wrap;}
+  .bt-pbtn{border:2.5px solid var(--line);background:#fff;border-radius:14px;font-family:inherit;font-weight:800;font-size:15px;padding:11px 16px;cursor:pointer;color:var(--muted);}
+  .bt-pbtn.on{border-color:var(--accent);background:#fff2e3;color:var(--accent-d);}
+  .bt-tgl-row{display:flex;gap:6px;flex-wrap:wrap;}
+  .bt-tgl{border:2px solid var(--line);background:#fff;border-radius:10px;font-family:inherit;font-weight:800;font-size:13px;padding:9px 14px;cursor:pointer;color:var(--muted);}
+  .bt-tgl.on{border-color:var(--accent);background:#fff2e3;color:var(--accent-d);}
+  .bt-set-box{border:1.5px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:10px;background:#fff;}
+  .bt-set-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;font-weight:800;font-size:14px;}
+  .bt-set-rows{border-top:1.5px solid var(--line);}
+  .bt-chk{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line);font-weight:700;font-size:13px;cursor:pointer;}
+  .bt-chk:last-child{border-bottom:none;}
+  .bt-chk input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:var(--accent);flex-shrink:0;}
+  .bt-allbtn{background:none;border:1.5px solid var(--muted);border-radius:8px;font-family:inherit;font-weight:800;font-size:11px;padding:3px 8px;cursor:pointer;color:var(--muted);white-space:nowrap;}
+  #btCover{position:fixed;inset:0;background:linear-gradient(150deg,#fff2e3,var(--bg));z-index:201;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;}
+  .bt-cname{font-size:34px;font-weight:800;color:var(--accent-d);margin:0 0 4px;}
+  .bt-csub{font-size:17px;font-weight:800;color:var(--muted);margin-bottom:22px;}
+  .bt-sb{background:#fff;border:2px solid var(--line);border-radius:18px;padding:12px 20px;width:100%;max-width:320px;margin-bottom:24px;box-shadow:var(--shadow);}
+  .bt-sbrow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-weight:800;font-size:15px;border-bottom:1px solid var(--line);}
+  .bt-sbrow:last-child{border-bottom:none;}
+  .bt-sbrow.cur{color:var(--accent-d);}
+  .bt-tapbtn{background:var(--accent);color:#fff;border:none;font-family:inherit;font-weight:800;font-size:18px;padding:18px;border-radius:20px;cursor:pointer;box-shadow:0 5px 0 var(--accent-d);width:100%;max-width:320px;margin-bottom:14px;}
+  .bt-pass{font-size:12px;color:var(--muted);font-weight:700;}
+  #btQuiz{position:fixed;inset:0;background:var(--bg);z-index:201;flex-direction:column;overflow:hidden;}
+  .bt-tmwrap{height:8px;background:#f0e6d8;flex-shrink:0;}
+  .bt-tmbar{height:100%;background:var(--accent);border-radius:0 4px 4px 0;}
+  .bt-tmbar.danger{background:var(--learn);}
+  .bt-qhdr{display:flex;align-items:center;justify-content:space-between;padding:8px 14px 4px;font-weight:800;font-size:13px;color:var(--muted);flex-shrink:0;}
+  .bt-qbody{flex:1;overflow-y:auto;padding:0 14px calc(20px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch;}
+  #btResult{position:fixed;inset:0;background:var(--bg);z-index:201;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;overflow-y:auto;}
+  .bt-rtitle{font-size:26px;font-weight:800;margin-bottom:16px;}
+  .bt-rtable{background:#fff;border:2px solid var(--line);border-radius:18px;padding:12px 20px;width:100%;max-width:320px;margin-bottom:16px;box-shadow:var(--shadow);}
+  .bt-rrow{display:flex;align-items:center;gap:10px;padding:8px 0;font-weight:800;font-size:15px;border-bottom:1px solid var(--line);}
+  .bt-rrow:last-child{border-bottom:none;}
+  .bt-rwinner{font-size:20px;font-weight:800;color:var(--accent-d);margin-bottom:24px;}
 </style>
 </head>
 <body>
@@ -181,6 +222,9 @@
       </div>
     </div>
     <div class="footer"><button class="reset" onclick="resetScope()">▶ この はんいの きろくを リセット</button></div>
+    <div style="margin-top:12px;padding:0 2px">
+      <button class="bigauto" style="background:linear-gradient(135deg,#7048e8,#e040fb)" onclick="openBattleSetup()">⚔️ たいせんモードであそぶ<small>2〜5人で交代して対戦！</small></button>
+    </div>
   </div>
 
   <!-- LIST -->
@@ -315,6 +359,55 @@
   </div>
 </div>
 
+<!-- ===== 対戦モード: セットアップ ===== -->
+<div id="battleBg" style="display:none">
+  <div class="bt-hdr">⚔️ たいせん モード <button class="bt-close" onclick="closeBattle()">✕</button></div>
+  <div class="bt-body" id="btBody"></div>
+</div>
+<!-- ===== 対戦モード: 交代カバー ===== -->
+<div id="btCover" style="display:none">
+  <div style="font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px" id="btCovProg"></div>
+  <div class="bt-cname" id="btCovName"></div>
+  <div class="bt-csub">の ばん！</div>
+  <div class="bt-sb" id="btCovSb"></div>
+  <button class="bt-tapbtn" onclick="btStartTurn()">👆 タップして スタート</button>
+  <div class="bt-pass" id="btCovPass"></div>
+</div>
+<!-- ===== 対戦モード: 問題画面 ===== -->
+<div id="btQuiz" style="display:none">
+  <div class="bt-tmwrap"><div class="bt-tmbar" id="btTmBar" style="width:0%"></div></div>
+  <div class="bt-qhdr"><span id="btQLabel"></span><span id="btTmNum"></span></div>
+  <div class="bt-qbody">
+    <div class="quiz" id="btCard" style="margin-top:8px">
+      <div class="tag" id="btQTag"></div>
+      <div class="pic" id="btQPic"></div>
+      <div class="hint hidden" id="btQHint"><span id="btQHintTxt"></span></div>
+      <div class="hint-btns">
+        <button class="hintbtn" onclick="btToggleHint()">💬 ヒント（にほんご）</button>
+        <button class="hintbtn" onclick="btSpeak()">🔊 ヒント（えいごのおと）</button>
+      </div>
+      <input class="ans" id="btAns" type="text" inputmode="latin" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="えいごで かこう" enterkeyhint="done">
+      <div class="feedback" id="btFb"></div>
+      <div class="btns" id="btAbtn">
+        <button class="btn ghost small" onclick="btReveal()">こたえをみる</button>
+        <button class="btn primary" onclick="btCheck()">こたえあわせ</button>
+      </div>
+      <div class="btns" id="btNbtn" style="display:none">
+        <button class="btn green" id="btNbtnInner" onclick="btNext()">つぎへ</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===== 対戦モード: 最終結果 ===== -->
+<div id="btResult" style="display:none">
+  <div class="bt-rtitle">🏆 けっか 🏆</div>
+  <div class="bt-rtable" id="btRTable"></div>
+  <div class="bt-rwinner" id="btRWinner"></div>
+  <div class="btns" style="width:100%;max-width:320px">
+    <button class="btn ghost" onclick="closeBattle()">おわる</button>
+    <button class="btn primary" onclick="openBattleSetup()">もういちど！</button>
+  </div>
+</div>
 <input type="file" id="photoFile" class="hidefile" accept="image/*">
 <input type="file" id="autoFile" class="hidefile" accept="image/*">
 <input type="file" id="importQFile" class="hidefile" accept="application/json,.json">
@@ -557,6 +650,233 @@ function renderPlayerDisplay(){const name=currentPlayerName();document.getElemen
 function addPlayerFromModal(){const name=document.getElementById("newPlayerName").value.trim();if(!name)return;addPlayer(name);document.getElementById("newPlayerName").value="";}
 
 renderChips();renderProgress();renderPlayerDisplay();nextCard();
+
+/* ===== 対戦モード ===== */
+let bts = null;
+
+function getPS(pid){
+  try{const r=localStorage.getItem("eitango_data_"+pid);if(r){const s=JSON.parse(r);if(!s.photos)s.photos={};if(!s.units)s.units=[];return s;}}catch(e){}
+  return{seq:1,units:[],prog:{},photos:{}};
+}
+
+function openBattleSetup(){
+  stopBtTimer();
+  if(!bts){
+    bts={selPids:playerConfig.players.map(p=>p.id),selSets:{},perPlayer:10,timeLim:0,
+         players:[],pstates:{},scores:{},queues:{},turnIdx:0,cur:null,answered:false,timerIv:null,timerLeft:0};
+    playerConfig.players.forEach(p=>{const ps=getPS(p.id);bts.pstates[p.id]=ps;bts.selSets[p.id]=ps.units.map(u=>u.id);});
+  }else{
+    playerConfig.players.forEach(p=>{if(!bts.pstates[p.id]){const ps=getPS(p.id);bts.pstates[p.id]=ps;bts.selSets[p.id]=ps.units.map(u=>u.id);}});
+    bts.selPids=bts.selPids.filter(id=>playerConfig.players.some(p=>p.id===id));
+    if(!bts.selPids.length)bts.selPids=playerConfig.players.map(p=>p.id);
+  }
+  ['btResult','btCover','btQuiz'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('battleBg').style.display='flex';
+  renderBtSetup();
+}
+
+function closeBattle(){
+  stopBtTimer();
+  ['battleBg','btCover','btQuiz','btResult'].forEach(id=>document.getElementById(id).style.display='none');
+}
+
+function renderBtSetup(){
+  let h='';
+  h+=`<div class="bt-sec"><div class="bt-sec-ttl">だれとたいせん？（2人以上）</div><div class="bt-pgrid">`;
+  playerConfig.players.forEach(p=>{
+    const on=bts.selPids.includes(p.id);
+    h+=`<button class="bt-pbtn ${on?'on':''}" onclick="btTglPlayer('${p.id}')">${on?'✅ ':''}${esc(p.name)}</button>`;
+  });
+  h+=`</div></div>`;
+  h+=`<div class="bt-sec"><div class="bt-sec-ttl">どのセットをつかう？</div>`;
+  bts.selPids.forEach(pid=>{
+    const p=playerConfig.players.find(x=>x.id===pid);if(!p)return;
+    const units=bts.pstates[pid].units;
+    if(!units.length){h+=`<div class="bt-set-box"><div class="bt-set-hdr"><span>${esc(p.name)} のセット</span><span style="font-size:11px;color:var(--muted)">単語なし</span></div></div>`;return;}
+    const allOn=units.every(u=>(bts.selSets[pid]||[]).includes(u.id));
+    h+=`<div class="bt-set-box"><div class="bt-set-hdr"><span>▼ ${esc(p.name)} のセット</span><button class="bt-allbtn" onclick="btSelAll('${pid}',${allOn?'false':'true'})">${allOn?'全解除':'全選択'}</button></div><div class="bt-set-rows">`;
+    units.forEach(u=>{
+      const chk=(bts.selSets[pid]||[]).includes(u.id);
+      h+=`<label class="bt-chk"><input type="checkbox" ${chk?'checked':''} onchange="btTglSet('${pid}','${u.id}',this.checked)"><span>${esc(u.id)} ${esc(u.name)}</span><span style="margin-left:auto;color:var(--muted);font-size:11px">${u.words.length}語</span></label>`;
+    });
+    h+=`</div></div>`;
+  });
+  h+=`</div>`;
+  h+=`<div class="bt-sec"><div class="bt-sec-ttl">1人あたりなんもん？</div><div class="bt-tgl-row">`;
+  [5,10,20,30].forEach(n=>h+=`<button class="bt-tgl ${bts.perPlayer===n?'on':''}" onclick="btSetN(${n})">${n}問</button>`);
+  h+=`</div></div>`;
+  h+=`<div class="bt-sec"><div class="bt-sec-ttl">せいげん じかん</div><div class="bt-tgl-row">`;
+  [0,10,15,20,25,30,45,60].forEach(t=>h+=`<button class="bt-tgl ${bts.timeLim===t?'on':''}" onclick="btSetT(${t})">${t===0?'無制限':t+'秒'}</button>`);
+  h+=`</div></div>`;
+  const canStart=bts.selPids.length>=2&&bts.selPids.every(pid=>(bts.selSets[pid]||[]).length>0);
+  h+=`<button class="btn primary" style="width:100%;font-size:18px;padding:16px;${!canStart?'opacity:.45;pointer-events:none':''}" onclick="btGo()">⚔️ スタート！</button>`;
+  if(!canStart)h+=`<p style="text-align:center;font-size:12px;color:var(--muted);font-weight:700;margin-top:8px">2人以上えらんで、セットも1つ以上えらんでね</p>`;
+  document.getElementById('btBody').innerHTML=h;
+}
+
+function btTglPlayer(id){
+  const i=bts.selPids.indexOf(id);
+  if(i>=0){if(bts.selPids.length>1)bts.selPids.splice(i,1);}else bts.selPids.push(id);
+  renderBtSetup();
+}
+function btTglSet(pid,uid,on){
+  if(!bts.selSets[pid])bts.selSets[pid]=[];
+  if(on){if(!bts.selSets[pid].includes(uid))bts.selSets[pid].push(uid);}
+  else bts.selSets[pid]=bts.selSets[pid].filter(x=>x!==uid);
+  renderBtSetup();
+}
+function btSelAll(pid,on){bts.selSets[pid]=on?bts.pstates[pid].units.map(u=>u.id):[];renderBtSetup();}
+function btSetN(n){bts.perPlayer=n;renderBtSetup();}
+function btSetT(t){bts.timeLim=t;renderBtSetup();}
+
+function btGo(){
+  bts.players=bts.selPids.map(id=>playerConfig.players.find(p=>p.id===id)).filter(Boolean);
+  bts.scores={};bts.queues={};
+  bts.players.forEach(p=>{
+    bts.scores[p.id]=0;
+    const units=bts.pstates[p.id].units.filter(u=>(bts.selSets[p.id]||[]).includes(u.id));
+    let words=[];
+    units.forEach(u=>u.words.forEach(w=>words.push({u,w})));
+    for(let i=words.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[words[i],words[j]]=[words[j],words[i]];}
+    const pool=[];
+    while(pool.length<bts.perPlayer&&words.length>0)pool.push(...words);
+    bts.queues[p.id]=pool.slice(0,bts.perPlayer);
+  });
+  bts.turnIdx=0;
+  document.getElementById('battleBg').style.display='none';
+  btShowCover();
+}
+
+function btShowCover(){
+  const np=bts.players.length,total=bts.perPlayer*np;
+  const p=bts.players[bts.turnIdx%np];
+  document.getElementById('btCovProg').textContent=`Q ${bts.turnIdx+1} / ${total}`;
+  document.getElementById('btCovName').textContent=p.name;
+  document.getElementById('btCovPass').textContent=p.name+' にスマホをわたしてね';
+  const sorted=[...bts.players].sort((a,b)=>bts.scores[b.id]-bts.scores[a.id]);
+  document.getElementById('btCovSb').innerHTML=sorted.map(x=>
+    `<div class="bt-sbrow ${x.id===p.id?'cur':''}"><span>${x.id===p.id?'🎯 ':''}${esc(x.name)}</span><span>${bts.scores[x.id]}点</span></div>`
+  ).join('');
+  document.getElementById('btCover').style.display='flex';
+  document.getElementById('btQuiz').style.display='none';
+  document.getElementById('btResult').style.display='none';
+}
+
+function btStartTurn(){
+  document.getElementById('btCover').style.display='none';
+  const np=bts.players.length,p=bts.players[bts.turnIdx%np],qi=Math.floor(bts.turnIdx/np);
+  const q=bts.queues[p.id][qi];
+  bts.cur={...q,pid:p.id};bts.answered=false;
+  const ps=bts.pstates[p.id],photo=ps.photos[q.w.id];
+  document.getElementById('btQLabel').innerHTML=`⚔️ <b>${esc(p.name)}</b>  Q${qi+1}/${bts.perPlayer}`;
+  document.getElementById('btQTag').textContent=q.u.id+' '+q.u.name;
+  document.getElementById('btQPic').innerHTML=photo?`<img src="${photo}" alt="">`:
+    `<div class="ph"><b>📷</b></div>`;
+  document.getElementById('btQHintTxt').textContent=q.w.j;
+  document.getElementById('btQHint').classList.add('hidden');
+  const inp=document.getElementById('btAns');
+  inp.value='';inp.className='ans';inp.disabled=false;
+  document.getElementById('btFb').textContent='';
+  document.getElementById('btFb').style.color='';
+  document.getElementById('btAbtn').style.display='flex';
+  document.getElementById('btNbtn').style.display='none';
+  stopBtTimer();
+  if(bts.timeLim>0){
+    bts.timerLeft=bts.timeLim;
+    const bar=document.getElementById('btTmBar');
+    bar.style.transition='none';bar.style.width='100%';bar.classList.remove('danger');
+    document.getElementById('btTmNum').textContent=bts.timerLeft+'秒';
+    setTimeout(()=>{bar.style.transition=`width ${bts.timeLim}s linear`;bar.style.width='0%';},50);
+    bts.timerIv=setInterval(()=>{
+      bts.timerLeft--;
+      document.getElementById('btTmNum').textContent=bts.timerLeft+'秒';
+      if(bts.timerLeft<=3)document.getElementById('btTmBar').classList.add('danger');
+      if(bts.timerLeft<=0){stopBtTimer();btTimeUp();}
+    },1000);
+  }else{
+    document.getElementById('btTmNum').textContent='';
+    document.getElementById('btTmBar').style.transition='none';
+    document.getElementById('btTmBar').style.width='0%';
+  }
+  document.getElementById('btQuiz').style.display='flex';
+  setTimeout(()=>document.getElementById('btAns').focus(),150);
+}
+
+function stopBtTimer(){if(bts?.timerIv){clearInterval(bts.timerIv);bts.timerIv=null;}}
+function btToggleHint(){document.getElementById('btQHint').classList.toggle('hidden');}
+function btSpeak(){if(bts?.cur)speak(bts.cur.w.e);}
+
+function btCheck(){
+  if(bts.answered)return;
+  const inp=document.getElementById('btAns'),v=norm(inp.value);
+  if(!v){inp.focus();return;}
+  stopBtTimer();
+  const ok=accepted(bts.cur.w).includes(v);
+  bts.answered=true;inp.disabled=true;
+  if(ok){
+    bts.scores[bts.cur.pid]++;
+    inp.classList.add('ok');
+    document.getElementById('btFb').innerHTML=`🎉 せいかい！ <span class="correctword">${esc(bts.cur.w.e)}</span>`;
+    document.getElementById('btFb').style.color='var(--known)';
+    confetti();playCorrect();btShowNext('+1点');
+  }else{
+    inp.classList.add('ng');
+    document.getElementById('btFb').innerHTML=`😢 ざんねん！ こたえ → <span class="correctword">${esc(bts.cur.w.e)}</span>`;
+    document.getElementById('btFb').style.color='var(--learn)';
+    document.getElementById('btQHint').classList.remove('hidden');
+    playWrong();btShowNext('+0点');
+  }
+}
+
+function btReveal(){
+  if(bts.answered)return;
+  stopBtTimer();bts.answered=true;document.getElementById('btAns').disabled=true;
+  document.getElementById('btFb').innerHTML=`こたえ → <span class="correctword">${esc(bts.cur.w.e)}</span>`;
+  document.getElementById('btFb').style.color='var(--ink)';
+  btShowNext('+0点');
+}
+
+function btTimeUp(){
+  if(bts.answered)return;
+  bts.answered=true;
+  const inp=document.getElementById('btAns');inp.disabled=true;inp.classList.add('ng');
+  document.getElementById('btFb').innerHTML=`⏰ じかんきれ！ こたえ → <span class="correctword">${esc(bts.cur.w.e)}</span>`;
+  document.getElementById('btFb').style.color='var(--learn)';
+  btShowNext('+0点');
+}
+
+function btShowNext(txt){
+  document.getElementById('btAbtn').style.display='none';
+  document.getElementById('btNbtnInner').textContent='つぎへ '+txt+' →';
+  document.getElementById('btNbtn').style.display='flex';
+}
+
+function btNext(){
+  bts.turnIdx++;
+  if(bts.turnIdx>=bts.perPlayer*bts.players.length)btShowResult();
+  else btShowCover();
+}
+
+function btShowResult(){
+  document.getElementById('btQuiz').style.display='none';
+  document.getElementById('btCover').style.display='none';
+  const sorted=[...bts.players].sort((a,b)=>bts.scores[b.id]-bts.scores[a.id]);
+  const medals=['🥇','🥈','🥉','4位','5位'];
+  let rank=1;
+  document.getElementById('btRTable').innerHTML=sorted.map((p,i)=>{
+    if(i>0&&bts.scores[sorted[i].id]<bts.scores[sorted[i-1].id])rank=i+1;
+    return `<div class="bt-rrow"><span style="font-size:20px">${medals[rank-1]||rank+'位'}</span><span style="flex:1">${esc(p.name)}</span><span style="font-family:'Baloo 2';font-size:18px;color:var(--accent-d)">${bts.scores[p.id]}点</span></div>`;
+  }).join('');
+  const top=bts.scores[sorted[0].id],winners=sorted.filter(p=>bts.scores[p.id]===top);
+  document.getElementById('btRWinner').textContent=winners.length>1?'🤝 ひきわけ！':`🎊 ${winners[0].name} の かち！`;
+  document.getElementById('btResult').style.display='flex';
+  confetti();setTimeout(confetti,400);
+}
+
+document.getElementById('btAns').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){e.preventDefault();if(bts&&!bts.answered)btCheck();}
+});
+
 function confetti(){const cs=["#ff8a3d","#3bb273","#4aa3df","#ffd23f","#ff6b6b"];for(let i=0;i<16;i++){const c=document.createElement("div");c.className="confetti";c.style.left=Math.random()*100+"vw";c.style.background=cs[i%cs.length];c.style.animation="fall "+(0.9+Math.random()*0.7)+"s ease-in "+Math.random()*0.2+"s forwards";document.body.appendChild(c);setTimeout(()=>c.remove(),2000);}}
 </script>
 </body>
