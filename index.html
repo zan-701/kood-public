@@ -372,6 +372,7 @@
   <div class="bt-sb" id="btCovSb"></div>
   <button class="bt-tapbtn" onclick="btStartTurn()">👆 タップして スタート</button>
   <div class="bt-pass" id="btCovPass"></div>
+  <div id="btCovBgm" style="margin-top:14px"></div>
 </div>
 <!-- ===== 対戦モード: 問題画面 ===== -->
 <div id="btQuiz" style="display:none">
@@ -662,7 +663,7 @@ function getPS(pid){
 function openBattleSetup(){
   stopBtTimer();
   if(!bts){
-    bts={selPids:playerConfig.players.map(p=>p.id),selSets:{},perPlayer:10,timeLim:0,
+    bts={selPids:playerConfig.players.map(p=>p.id),selSets:{},perPlayer:10,timeLim:0,bgm:'puzzle',
          players:[],pstates:{},scores:{},queues:{},turnIdx:0,cur:null,answered:false,timerIv:null,timerLeft:0};
     playerConfig.players.forEach(p=>{const ps=getPS(p.id);bts.pstates[p.id]=ps;bts.selSets[p.id]=ps.units.map(u=>u.id);});
   }else{
@@ -709,6 +710,10 @@ function renderBtSetup(){
   h+=`<div class="bt-sec"><div class="bt-sec-ttl">せいげん じかん</div><div class="bt-tgl-row">`;
   [0,10,15,20,25,30,45,60].forEach(t=>h+=`<button class="bt-tgl ${bts.timeLim===t?'on':''}" onclick="btSetT(${t})">${t===0?'無制限':t+'秒'}</button>`);
   h+=`</div></div>`;
+  const bgmOpts=[{k:'puzzle',l:'🧩 パズル'},{k:'rpg',l:'⚔️ RPGバトル'},{k:'fight',l:'🥊 格闘'},{k:'space',l:'🚀 スペース'},{k:'off',l:'🔇 オフ'}];
+  h+=`<div class="bt-sec"><div class="bt-sec-ttl">バトルBGM</div><div class="bt-tgl-row">`;
+  bgmOpts.forEach(o=>h+=`<button class="bt-tgl ${bts.bgm===o.k?'on':''}" onclick="btSetBgm('${o.k}')">${o.l}</button>`);
+  h+=`</div></div>`;
   const canStart=bts.selPids.length>=2&&bts.selPids.every(pid=>(bts.selSets[pid]||[]).length>0);
   h+=`<button class="btn primary" style="width:100%;font-size:18px;padding:16px;${!canStart?'opacity:.45;pointer-events:none':''}" onclick="btGo()">⚔️ スタート！</button>`;
   if(!canStart)h+=`<p style="text-align:center;font-size:12px;color:var(--muted);font-weight:700;margin-top:8px">2人以上えらんで、セットも1つ以上えらんでね</p>`;
@@ -729,6 +734,17 @@ function btTglSet(pid,uid,on){
 function btSelAll(pid,on){bts.selSets[pid]=on?bts.pstates[pid].units.map(u=>u.id):[];renderBtSetup();}
 function btSetN(n){bts.perPlayer=n;renderBtSetup();}
 function btSetT(t){bts.timeLim=t;renderBtSetup();}
+function btSetBgm(key){
+  if(!bts)return;bts.bgm=key;
+  if(document.getElementById('battleBg').style.display!=='none')renderBtSetup();
+  btRenderCovBgm();
+}
+function btRenderCovBgm(){
+  const el=document.getElementById('btCovBgm');if(!el||!bts)return;
+  const opts=[{k:'puzzle',l:'🧩'},{k:'rpg',l:'⚔️'},{k:'fight',l:'🥊'},{k:'space',l:'🚀'},{k:'off',l:'🔇'}];
+  el.innerHTML=`<div style="font-size:11px;font-weight:800;color:var(--muted);margin-bottom:6px">BGM</div><div style="display:flex;gap:5px;justify-content:center">`+
+    opts.map(o=>`<button class="bt-tgl ${bts.bgm===o.k?'on':''}" style="padding:7px 10px" onclick="btSetBgm('${o.k}')">${o.l}</button>`).join('')+`</div>`;
+}
 
 function btGo(){
   bts.players=bts.selPids.map(id=>playerConfig.players.find(p=>p.id===id)).filter(Boolean);
@@ -761,6 +777,7 @@ function btShowCover(){
   document.getElementById('btCover').style.display='flex';
   document.getElementById('btQuiz').style.display='none';
   document.getElementById('btResult').style.display='none';
+  btRenderCovBgm();
   setTimeout(playBtReady,150);
 }
 
@@ -905,16 +922,46 @@ function _btSched(){
     _btNxt+=_btBpb*b;_btIdx++;
   }
 }
+const BT_BGM_PATTERNS={
+  // 🧩 パズルゲーム風: Aマイナー・140BPM・テトリス系
+  puzzle:{bpb:60/140,vol:0.055,wave:'square',pat:[
+    [659,1],[493,1],[523,1],[587,1],[523,1],[440,1],[440,1],[0,1],
+    [261,1],[329,1],[440,1],[493,1],[415,2],[0,2],
+    [659,1],[523,1],[587,1],[493,1],[523,1],[440,1],[440,1],[0,1],
+    [440,1],[493,1],[523,1],[587,1],[659,2],[0,2],
+  ]},
+  // ⚔️ RPGバトル風: Cメジャー→マイナー・155BPM・勇壮
+  rpg:{bpb:60/155,vol:0.06,wave:'square',pat:[
+    [392,1],[0,1],[392,1],[440,1],[392,1],[349,1],[329,1],[0,1],
+    [261,1],[0,1],[329,1],[0,1],[392,2],[0,2],
+    [523,1],[0,1],[523,1],[587,1],[523,1],[493,1],[440,1],[0,1],
+    [392,1],[440,1],[493,1],[440,1],[523,2],[0,2],
+  ]},
+  // 🥊 格闘ゲーム風: Aマイナー・175BPM・攻撃的
+  fight:{bpb:60/175,vol:0.06,wave:'square',pat:[
+    [440,1],[440,1],[523,1],[0,1],[493,1],[493,1],[587,1],[0,1],
+    [523,1],[0,1],[493,1],[0,1],[440,1],[0,1],[392,1],[0,1],
+    [659,1],[0,1],[659,1],[587,1],[523,1],[0,1],[493,1],[0,1],
+    [440,1],[493,1],[523,1],[493,1],[440,2],[0,2],
+  ]},
+  // 🚀 スペースシューター風: Cメジャー・160BPM・ギャラガ系
+  space:{bpb:60/160,vol:0.055,wave:'square',pat:[
+    [784,1],[659,1],[523,1],[659,1],[784,1],[0,1],[784,1],[880,1],
+    [784,1],[698,1],[659,1],[587,1],[523,2],[0,2],
+    [659,1],[0,1],[784,1],[0,1],[880,1],[0,1],[784,1],[659,1],
+    [523,1],[587,1],[659,1],[587,1],[523,2],[0,2],
+  ]},
+};
 function startBtBgm(type){
   stopBtBgm();
   try{
     const ctx=_btACtx();
     if(type==='quiz'){
-      // Aマイナー・緊張感・165BPM・スクエア波
-      _btBpb=60/165;_btVol=0.055;_btWave='square';
-      _btPat=[[440,1],[0,1],[440,1],[523,1],[493,1],[0,1],[493,1],[392,1],[415,1],[0,1],[392,1],[349,1],[329,2],[0,2]];
+      if(!bts||bts.bgm==='off')return;
+      const p=BT_BGM_PATTERNS[bts.bgm];if(!p)return;
+      _btBpb=p.bpb;_btVol=p.vol;_btWave=p.wave;_btPat=p.pat;
     }else{
-      // Cメジャー・明るい・110BPM・トライアングル波
+      // セットアップBGM: Cメジャー・明るい・110BPM・トライアングル波
       _btBpb=60/110;_btVol=0.065;_btWave='triangle';
       _btPat=[[523,1],[659,1],[784,1],[659,1],[523,1],[440,1],[392,1],[329,1],[349,1],[440,1],[523,1],[440,1],[392,1],[329,1],[261,1],[0,1]];
     }
