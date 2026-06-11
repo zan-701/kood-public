@@ -212,7 +212,7 @@
         </button>
       </div>
       <p style="margin:8px 2px 0;font-size:11.5px">
-        <b style="color:var(--blue)">問題データ</b>：お母さんが単語・写真を追加したあとここから書き出して、iCloudやAirDropで桜大くんに渡します。<br>
+        <b style="color:var(--blue)">問題データ</b>：単語・写真を追加したあとここから書き出して、iCloudやAirDropで<span id="exportHelpName"></span>に渡します。<br>
         <b style="color:var(--muted)">全データ</b>：端末まるごとのバックアップ。引越しや万が一の消失対策に。
       </p>
     </div>
@@ -349,7 +349,7 @@ function savePlayerConfig(){localStorage.setItem(PLAYERS_KEY,JSON.stringify(play
 function initPlayers(){
   try{const raw=localStorage.getItem(PLAYERS_KEY);if(raw){playerConfig=JSON.parse(raw);return;}}catch(e){}
   const legacy=localStorage.getItem("eitango_sakurato_v2");
-  const p1name=legacy?"桜大":"プレイヤー1";
+  const p1name="プレイヤー1";
   playerConfig={current:"p1",players:[{id:"p1",name:p1name}]};
   if(legacy)localStorage.setItem("eitango_data_p1",legacy);
   savePlayerConfig();
@@ -494,10 +494,10 @@ document.getElementById("importQFile").addEventListener("change",function(){
       const msg=`📥 問題データを取り込みます。\n\n`+
         (added.length?`✅ 新しく追加：${added.length}語\n`+added.slice(0,5).join("、")+(added.length>5?"…":"")+"。\n\n":"")+
         (updated.length?`🔄 写真・日本語を更新：${updated.length}語\n\n`:"")+
-        `桜大くんの進捗（覚えた／まだ）はそのまま残ります。\n取り込みますか？`;
+        `${currentPlayerName()}の進捗（覚えた／まだ）はそのまま残ります。\n取り込みますか？`;
       if(!confirm(msg))return;
       mergeQuestions(obj);renderAll();
-      alert("✅ 取り込み完了！\n新しい単語や写真が追加されました。\n桜大くんの進捗はそのままです。");
+      alert("✅ 取り込み完了！\n新しい単語や写真が追加されました。\n"+currentPlayerName()+"の進捗はそのままです。");
     }catch(err){alert("このファイルを読み込めませんでした。「問題データ」か「全バックアップ」のファイルをえらんでください。");}
   };r.readAsText(f);
 });
@@ -552,7 +552,8 @@ function saveAuto(){const e=document.getElementById("autoEng").value.trim();cons
 function openPlayerModal(){renderPlayerModal();document.getElementById("playerModalBg").style.display="flex";}
 function closePlayerModal(){document.getElementById("playerModalBg").style.display="none";}
 function renderPlayerModal(){document.getElementById("playerList").innerHTML=playerConfig.players.map(p=>`<div class="prow ${p.id===playerConfig.current?"pon":""}"><button class="pname" onclick="switchPlayer('${p.id}')">${esc(p.name)}</button><button class="pedit" onclick="renamePlayer('${p.id}')">✏️</button>${playerConfig.players.length>1?`<button class="x" onclick="deletePlayer('${p.id}')">けす</button>`:""}</div>`).join("");document.getElementById("addPlayerArea").style.display=playerConfig.players.length>=5?"none":"";}
-function renderPlayerDisplay(){const p=playerConfig.players.find(p=>p.id===playerConfig.current);document.getElementById("playerNameDisplay").textContent=p?p.name:"?";}
+function currentPlayerName(){const p=playerConfig.players.find(x=>x.id===playerConfig.current);return p?p.name:"プレイヤー";}
+function renderPlayerDisplay(){const name=currentPlayerName();document.getElementById("playerNameDisplay").textContent=name;const el=document.getElementById("exportHelpName");if(el)el.textContent=name;}
 function addPlayerFromModal(){const name=document.getElementById("newPlayerName").value.trim();if(!name)return;addPlayer(name);document.getElementById("newPlayerName").value="";}
 
 renderChips();renderProgress();renderPlayerDisplay();nextCard();
