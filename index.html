@@ -236,6 +236,12 @@
   <!-- MANAGE -->
   <div id="manageView" style="display:none">
 
+    <!-- ストレージ使用量 -->
+    <div class="panel">
+      <h3>📊 ストレージ使用量</h3>
+      <div id="storageInfo">読み込み中…</div>
+    </div>
+
     <div class="panel">
       <h3>📸 カードの写真から自動でついか</h3>
       <p>カードを1枚送ると、英単語の文字を切り落とした絵・英語の読み取り・日本語翻訳を自動でセットします。</p>
@@ -618,7 +624,37 @@ function addUnit(){const id=document.getElementById("newUnitId").value.trim();co
 function delUnit(id){const u=state.units.find(x=>x.id===id);if(!u)return;if(!confirm("単元「"+id+"」と中の単語ぜんぶをけしますか？"))return;u.words.forEach(w=>{delete state.prog[w.id];delete state.photos[w.id];});state.units=state.units.filter(x=>x.id!==id);if(scope===id)scope="all";save();renderUnitList();renderChips();renderProgress();}
 
 /* ビュー切替・リセット */
-function setView(v){view=v;document.getElementById("tabQuiz").classList.toggle("on",v==="quiz");document.getElementById("tabList").classList.toggle("on",v==="list");document.getElementById("settingsBtn").classList.toggle("on",v==="manage");document.getElementById("quizView").style.display=v==="quiz"?"":"none";document.getElementById("listView").style.display=v==="list"?"":"none";document.getElementById("manageView").style.display=v==="manage"?"":"none";if(v==="quiz"){if(!cur)nextCard();else renderQuiz();}else if(v==="list")renderList();else renderUnitList();}
+function renderStorageInfo(){
+  const LIMIT_KB=5*1024;
+  const COLORS=["#4A9EFF","#FF6B6B","#6BCB77","#FFD93D","#C77DFF"];
+  const disp=kb=>kb>=1024?(kb/1024).toFixed(1)+"MB":kb+"KB";
+  const players=playerConfig.players.map((p,i)=>{
+    const raw=localStorage.getItem("eitango_data_"+p.id)||"";
+    const kb=Math.round(raw.length/512);
+    return{name:p.name,kb,color:COLORS[i%COLORS.length]};
+  });
+  const totalKb=players.reduce((s,p)=>s+p.kb,0);
+  const totalPct=Math.min(100,Math.round(totalKb/LIMIT_KB*100));
+  const warnColor=totalPct>=80?"var(--learn)":totalPct>=60?"#f5a623":"var(--green)";
+  const segs=players.map(p=>{
+    const w=Math.max(0,Math.round(p.kb/LIMIT_KB*100));
+    return w>0?`<div style="width:${w}%;background:${p.color};height:100%"></div>`:"";
+  }).join("");
+  const legend=players.map(p=>`<div style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700">
+    <span style="width:12px;height:12px;border-radius:3px;background:${p.color};flex-shrink:0;display:inline-block"></span>
+    <span style="flex:1">${esc(p.name)}</span>
+    <span style="color:${p.kb/LIMIT_KB>=0.8?"var(--learn)":p.kb/LIMIT_KB>=0.6?"#f5a623":"var(--txt)"}">${disp(p.kb)}</span>
+  </div>`).join("");
+  document.getElementById("storageInfo").innerHTML=`
+    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:4px">
+      <span>ごうけい <span style="color:${warnColor}">${disp(totalKb)}</span> / 5MB</span>
+      <span style="color:${warnColor}">${totalPct}% 使用中${totalPct>=80?" ⚠️":""}</span>
+    </div>
+    <div style="background:var(--line);border-radius:99px;height:18px;overflow:hidden;display:flex;margin-bottom:10px">${segs}</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">${legend}</div>
+    <p style="margin:0;font-size:11px;color:var(--muted)">※ Safari は1アプリ約5MBまで。写真が多いと上限に近づきます。不要なセットを「セットをけす」で削除すると空き容量が増えます。</p>`;
+}
+function setView(v){view=v;document.getElementById("tabQuiz").classList.toggle("on",v==="quiz");document.getElementById("tabList").classList.toggle("on",v==="list");document.getElementById("settingsBtn").classList.toggle("on",v==="manage");document.getElementById("quizView").style.display=v==="quiz"?"":"none";document.getElementById("listView").style.display=v==="list"?"":"none";document.getElementById("manageView").style.display=v==="manage"?"":"none";if(v==="quiz"){if(!cur)nextCard();else renderQuiz();}else if(v==="list")renderList();else{renderUnitList();renderStorageInfo();}}
 function resetScope(){const label=scope==="all"?"ぜんぶ":scope;if(!confirm(label+" の学習記録を0%にもどします。よろしいですか？"))return;scopeWords().forEach(({w})=>{delete state.prog[w.id];});save();cur=null;queue=[];renderProgress();renderChips();if(view==="quiz")nextCard();}
 function resetAllProgress(){if(!confirm("ぜんぶの学習記録を消します。単語・写真は残ります。よろしいですか？"))return;state.prog={};save();renderAll();}
 function deleteAllData(){
@@ -663,7 +699,7 @@ function getPS(pid){
 function openBattleSetup(){
   stopBtTimer();
   if(!bts){
-    bts={selPids:playerConfig.players.map(p=>p.id),selSets:{},perPlayer:10,timeLim:0,bgm:'puzzle',
+    bts={selPids:playerConfig.players.map(p=>p.id),selSets:{},perPlayer:10,timeLim:0,bgm:'puzzle',order:'random',
          players:[],pstates:{},scores:{},queues:{},turnIdx:0,cur:null,answered:false,timerIv:null,timerLeft:0};
     playerConfig.players.forEach(p=>{const ps=getPS(p.id);bts.pstates[p.id]=ps;bts.selSets[p.id]=ps.units.map(u=>u.id);});
   }else{
@@ -711,6 +747,10 @@ function renderBtSetup(){
   h+=`<div class="bt-sec"><div class="bt-sec-ttl">せいげん じかん</div><div class="bt-tgl-row">`;
   [0,10,15,20,25,30,45,60].forEach(t=>h+=`<button class="bt-tgl ${bts.timeLim===t?'on':''}" onclick="btSetT(${t})">${t===0?'無制限':t+'秒'}</button>`);
   h+=`</div></div>`;
+  h+=`<div class="bt-sec"><div class="bt-sec-ttl">しゅつだい じゅんばん</div><div class="bt-tgl-row">`;
+  h+=`<button class="bt-tgl ${bts.order==='random'?'on':''}" onclick="btSetOrder('random')">🔀 ランダム</button>`;
+  h+=`<button class="bt-tgl ${bts.order==='sequential'?'on':''}" onclick="btSetOrder('sequential')">📋 登録順</button>`;
+  h+=`</div></div>`;
   const bgmOpts=[{k:'puzzle',l:'🧩 パズル'},{k:'rpg',l:'⚔️ RPGバトル'},{k:'fight',l:'🥊 格闘'},{k:'space',l:'🚀 スペース'},{k:'off',l:'🔇 オフ'}];
   h+=`<div class="bt-sec"><div class="bt-sec-ttl">バトルBGM</div><div class="bt-tgl-row">`;
   bgmOpts.forEach(o=>h+=`<button class="bt-tgl ${bts.bgm===o.k?'on':''}" onclick="btSetBgm('${o.k}')">${o.l}</button>`);
@@ -735,6 +775,7 @@ function btTglSet(pid,uid,on){
 function btSelAll(pid,on){bts.selSets[pid]=on?bts.pstates[pid].units.map(u=>u.id):[];renderBtSetup();}
 function btSetN(n){bts.perPlayer=n;renderBtSetup();}
 function btSetT(t){bts.timeLim=t;renderBtSetup();}
+function btSetOrder(o){bts.order=o;renderBtSetup();}
 function btSetBgm(key){
   if(!bts)return;bts.bgm=key;
   if(document.getElementById('battleBg').style.display!=='none')renderBtSetup();
@@ -767,7 +808,7 @@ function btGo(){
     const units=bts.pstates[p.id].units.filter(u=>(bts.selSets[p.id]||[]).includes(u.id));
     let words=[];
     units.forEach(u=>u.words.forEach(w=>words.push({u,w})));
-    for(let i=words.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[words[i],words[j]]=[words[j],words[i]];}
+    if(bts.order!=='sequential'){for(let i=words.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[words[i],words[j]]=[words[j],words[i]];}}
     const pool=[];
     while(pool.length<bts.perPlayer&&words.length>0)pool.push(...words);
     bts.queues[p.id]=pool.slice(0,bts.perPlayer);
