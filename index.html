@@ -673,10 +673,11 @@ function openBattleSetup(){
   ['btResult','btCover','btQuiz'].forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById('battleBg').style.display='flex';
   renderBtSetup();
+  startBtBgm('setup');
 }
 
 function closeBattle(){
-  stopBtTimer();
+  stopBtTimer();stopBtBgm();
   ['battleBg','btCover','btQuiz','btResult'].forEach(id=>document.getElementById(id).style.display='none');
 }
 
@@ -744,7 +745,7 @@ function btGo(){
   });
   bts.turnIdx=0;
   document.getElementById('battleBg').style.display='none';
-  btShowCover();
+  stopBtBgm();btShowCover();
 }
 
 function btShowCover(){
@@ -760,6 +761,7 @@ function btShowCover(){
   document.getElementById('btCover').style.display='flex';
   document.getElementById('btQuiz').style.display='none';
   document.getElementById('btResult').style.display='none';
+  setTimeout(playBtReady,150);
 }
 
 function btStartTurn(){
@@ -799,6 +801,7 @@ function btStartTurn(){
     document.getElementById('btTmBar').style.width='0%';
   }
   document.getElementById('btQuiz').style.display='flex';
+  startBtBgm('quiz');
   setTimeout(()=>document.getElementById('btAns').focus(),150);
 }
 
@@ -810,7 +813,7 @@ function btCheck(){
   if(bts.answered)return;
   const inp=document.getElementById('btAns'),v=norm(inp.value);
   if(!v){inp.focus();return;}
-  stopBtTimer();
+  stopBtTimer();stopBtBgm();
   const ok=accepted(bts.cur.w).includes(v);
   bts.answered=true;inp.disabled=true;
   if(ok){
@@ -830,7 +833,7 @@ function btCheck(){
 
 function btReveal(){
   if(bts.answered)return;
-  stopBtTimer();bts.answered=true;document.getElementById('btAns').disabled=true;
+  stopBtTimer();stopBtBgm();bts.answered=true;document.getElementById('btAns').disabled=true;
   document.getElementById('btFb').innerHTML=`こたえ → <span class="correctword">${esc(bts.cur.w.e)}</span>`;
   document.getElementById('btFb').style.color='var(--ink)';
   btShowNext('+0点');
@@ -838,7 +841,7 @@ function btReveal(){
 
 function btTimeUp(){
   if(bts.answered)return;
-  bts.answered=true;
+  bts.answered=true;stopBtBgm();
   const inp=document.getElementById('btAns');inp.disabled=true;inp.classList.add('ng');
   document.getElementById('btFb').innerHTML=`⏰ じかんきれ！ こたえ → <span class="correctword">${esc(bts.cur.w.e)}</span>`;
   document.getElementById('btFb').style.color='var(--learn)';
@@ -870,12 +873,92 @@ function btShowResult(){
   const top=bts.scores[sorted[0].id],winners=sorted.filter(p=>bts.scores[p.id]===top);
   document.getElementById('btRWinner').textContent=winners.length>1?'🤝 ひきわけ！':`🎊 ${winners[0].name} の かち！`;
   document.getElementById('btResult').style.display='flex';
-  confetti();setTimeout(confetti,400);
+  if(winners.length>1)playBtDraw();else playBtFanfare();
+  confetti();setTimeout(confetti,400);setTimeout(confetti,800);
 }
 
 document.getElementById('btAns').addEventListener('keydown',e=>{
   if(e.key==='Enter'){e.preventDefault();if(bts&&!bts.answered)btCheck();}
 });
+
+/* ===== 対戦 BGM / SE ===== */
+let _btAC=null,_btJob=null,_btNxt=0,_btIdx=0,_btPat=null,_btBpb=0,_btVol=0,_btWave='square';
+function _btACtx(){
+  if(!_btAC||_btAC.state==='closed')_btAC=new(window.AudioContext||window.webkitAudioContext)();
+  if(_btAC.state==='suspended')_btAC.resume();
+  return _btAC;
+}
+function stopBtBgm(){if(_btJob){clearInterval(_btJob);_btJob=null;}_btPat=null;}
+function _btSched(){
+  if(!_btPat)return;
+  const ctx=_btACtx();
+  while(_btNxt<ctx.currentTime+0.3){
+    const[f,b]=_btPat[_btIdx%_btPat.length];
+    if(f>0){const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type=_btWave;o.frequency.value=f;const d=_btBpb*b*0.82;g.gain.setValueAtTime(_btVol,_btNxt);g.gain.exponentialRampToValueAtTime(0.0001,_btNxt+d);o.start(_btNxt);o.stop(_btNxt+d+0.02);}
+    _btNxt+=_btBpb*b;_btIdx++;
+  }
+}
+function startBtBgm(type){
+  stopBtBgm();
+  try{
+    const ctx=_btACtx();
+    if(type==='quiz'){
+      // Aマイナー・緊張感・165BPM・スクエア波
+      _btBpb=60/165;_btVol=0.055;_btWave='square';
+      _btPat=[[440,1],[0,1],[440,1],[523,1],[493,1],[0,1],[493,1],[392,1],[415,1],[0,1],[392,1],[349,1],[329,2],[0,2]];
+    }else{
+      // Cメジャー・明るい・110BPM・トライアングル波
+      _btBpb=60/110;_btVol=0.065;_btWave='triangle';
+      _btPat=[[523,1],[659,1],[784,1],[659,1],[523,1],[440,1],[392,1],[329,1],[349,1],[440,1],[523,1],[440,1],[392,1],[329,1],[261,1],[0,1]];
+    }
+    _btIdx=0;_btNxt=ctx.currentTime+0.05;
+    _btSched();_btJob=setInterval(_btSched,100);
+  }catch(e){}
+}
+// 交代合図（上昇4音）
+function playBtReady(){
+  try{
+    const ctx=_btACtx(),t=ctx.currentTime+0.05;
+    [[392,0,0.07],[523,0.08,0.07],[659,0.16,0.07],[784,0.24,0.28]].forEach(([f,s,d])=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);o.type='triangle';o.frequency.value=f;
+      g.gain.setValueAtTime(0.14,t+s);g.gain.exponentialRampToValueAtTime(0.001,t+s+d);
+      o.start(t+s);o.stop(t+s+d+0.02);
+    });
+  }catch(e){}
+}
+// ジャジャーン（勝者決定）
+function playBtFanfare(){
+  stopBtBgm();
+  try{
+    const ctx=_btACtx(),t=ctx.currentTime+0.05;
+    // 上昇アルペジオ → 大コード → キラキラ
+    [[261,0.00,0.06],[329,0.06,0.06],[392,0.12,0.06],[523,0.18,0.06],
+     [261,0.24,1.8],[329,0.24,1.8],[392,0.24,1.8],[523,0.24,1.8],[659,0.24,1.8],
+     [784,0.45,0.13],[1047,0.58,0.13],[784,0.71,0.13],[1047,0.84,0.90],
+    ].forEach(([f,s,d])=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);o.type='triangle';o.frequency.value=f;
+      g.gain.setValueAtTime(f>600?0.10:0.18,t+s);g.gain.exponentialRampToValueAtTime(0.001,t+s+d);
+      o.start(t+s);o.stop(t+s+d+0.02);
+    });
+  }catch(e){}
+}
+// ひきわけ音（下降→もう1回）
+function playBtDraw(){
+  stopBtBgm();
+  try{
+    const ctx=_btACtx(),t=ctx.currentTime+0.05;
+    [[523,0.00,0.12],[493,0.13,0.12],[440,0.26,0.12],[415,0.39,0.12],[392,0.52,0.55],
+     [523,0.65,0.08],[493,0.73,0.08],[440,0.81,0.08],[415,0.89,0.08],[392,0.97,0.50],
+    ].forEach(([f,s,d])=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);o.type='triangle';o.frequency.value=f;
+      g.gain.setValueAtTime(0.16,t+s);g.gain.exponentialRampToValueAtTime(0.001,t+s+d);
+      o.start(t+s);o.stop(t+s+d+0.02);
+    });
+  }catch(e){}
+}
 
 function confetti(){const cs=["#ff8a3d","#3bb273","#4aa3df","#ffd23f","#ff6b6b"];for(let i=0;i<16;i++){const c=document.createElement("div");c.className="confetti";c.style.left=Math.random()*100+"vw";c.style.background=cs[i%cs.length];c.style.animation="fall "+(0.9+Math.random()*0.7)+"s ease-in "+Math.random()*0.2+"s forwards";document.body.appendChild(c);setTimeout(()=>c.remove(),2000);}}
 </script>
