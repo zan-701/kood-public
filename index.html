@@ -21,10 +21,6 @@
   .who{font-size:12px;color:var(--muted);font-weight:700;}
   .hdr-gear{background:none;border:1.5px solid var(--line);border-radius:10px;font-size:18px;cursor:pointer;padding:5px 8px;line-height:1;color:var(--muted);font-family:inherit;}
   .hdr-gear.on{background:var(--accent);border-color:var(--accent-d);}
-<<<<<<< HEAD
-=======
-  .hdr-right{display:flex;align-items:center;gap:6px;}
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
   .level-btn{background:none;border:1.5px solid var(--accent);border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;padding:5px 10px;line-height:1;color:var(--accent-d);font-family:inherit;white-space:nowrap;}
   .topbar{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:12px 14px;box-shadow:var(--shadow);margin-bottom:14px;}
   .topbar .row{display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:13px;}
@@ -70,6 +66,8 @@
   .btn.blue{background:var(--blue);box-shadow:0 4px 0 #2f7fb0;}
   .btn.ghost{background:#fff;color:var(--muted);border:2px solid var(--line);box-shadow:0 4px 0 rgba(58,46,38,.06);}
   .btn.small{font-size:14px;padding:12px 0;}
+  .btn.big{font-size:19px;padding:17px 0;}
+  .btn.sub{font-size:13px;padding:10px 0;box-shadow:0 3px 0 rgba(58,46,38,.06);}
   .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
   .cell{background:#fff;border:2px solid var(--line);border-radius:16px;padding:10px;display:flex;align-items:center;gap:10px;box-shadow:0 3px 0 rgba(58,46,38,.05);cursor:pointer;text-align:left;}
   .cell .thumb{width:46px;height:46px;border-radius:10px;background:#faf3e8;border:1px solid var(--line);flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--muted);overflow:hidden;}
@@ -175,26 +173,93 @@
   .bt-rrow{display:flex;align-items:center;gap:10px;padding:8px 0;font-weight:800;font-size:15px;border-bottom:1px solid var(--line);}
   .bt-rrow:last-child{border-bottom:none;}
   .bt-rwinner{font-size:20px;font-weight:800;color:var(--accent-d);margin-bottom:24px;}
+
+  /* ===== ストリーク・ステータス ===== */
+  .streak-badge{background:linear-gradient(135deg,#ff6b35,#ff9500);color:#fff;font-weight:800;font-size:13px;border:none;border-radius:20px;padding:4px 10px;cursor:pointer;white-space:nowrap;font-family:inherit;line-height:1.4;}
+  .stat-card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+  .stat-heading{font-weight:800;font-size:15px;margin-bottom:10px;color:var(--ink);}
+  .stat-total-row{display:flex;align-items:baseline;gap:4px;font-weight:800;font-size:15px;}
+  .stat-pct{font-weight:800;color:var(--accent-d);margin-left:8px;}
+  .prog-bar-wrap{background:#eee;border-radius:8px;height:10px;overflow:hidden;margin-top:8px;}
+  .prog-bar-fill{height:100%;background:linear-gradient(90deg,#ffd23f,#3bb273);border-radius:8px;transition:width .5s;}
+  .streak-main{display:flex;align-items:baseline;gap:6px;margin-bottom:12px;}
+  .streak-big{font-size:52px;font-weight:900;color:var(--accent-d);line-height:1;}
+  .streak-unit{font-size:18px;font-weight:800;}
+  .streak-best{font-size:12px;color:#999;}
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .cal-nav-btn{background:none;border:none;font-size:22px;font-weight:900;cursor:pointer;color:var(--accent-d);padding:0 6px;border-radius:6px;line-height:1.2;}
+  .cal-nav-btn:disabled{color:#ccc;cursor:default;}
+  .cal-title{font-weight:800;text-align:center;font-size:13px;color:var(--muted);}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+  .cal-dh{text-align:center;font-size:10px;color:#bbb;padding:2px 0;font-weight:700;}
+  .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:11px;border-radius:50%;color:#ccc;font-weight:600;}
+  .cal-day.studied{background:var(--accent);color:#fff;font-weight:800;}
+  .cal-day.today{outline:2px solid var(--accent-d);outline-offset:-1px;color:var(--accent-d);font-weight:800;}
+  .cal-day.studied.today{background:var(--accent-d);color:#fff;outline:none;}
+  .lv-row{border-bottom:1px solid var(--line);}
+  .lv-row:last-child{border-bottom:none;}
+  .lv-header{display:flex;align-items:center;gap:8px;padding:11px 0;cursor:pointer;}
+  .lv-label{font-weight:800;font-size:14px;min-width:72px;}
+  .lv-bar-wrap{flex:1;background:#eee;border-radius:6px;height:8px;overflow:hidden;}
+  .lv-bar-fill{height:100%;background:linear-gradient(90deg,#ffd23f,#3bb273);border-radius:6px;transition:width .4s;}
+  .lv-pct{font-size:12px;color:#999;white-space:nowrap;min-width:64px;text-align:right;}
+  .lv-chevron{font-size:12px;color:#bbb;transition:transform .2s;}
+  .lv-body{display:none;}
+  .lv-body.open{display:block;}
+  .sec-item{display:flex;align-items:center;gap:8px;padding:7px 8px;border-bottom:1px solid #f5f5f5;cursor:pointer;border-radius:8px;}
+  .sec-item:last-child{border-bottom:none;}
+  .sec-item:active{background:#f5f5f5;}
+  .sec-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+  .sec-dot.clear{background:#4CAF50;}
+  .sec-dot.doing{background:#FF9800;}
+  .sec-dot.none{background:#ddd;}
+  .sec-name{font-size:13px;flex:1;}
+  .sec-count{font-size:11px;color:#999;white-space:nowrap;}
+  .sec-arrow{font-size:11px;color:#ccc;}
+  /* ===== デイリーゴール ===== */
+  .dg-row{display:flex;align-items:center;gap:10px;margin-top:9px;padding-top:9px;border-top:1.5px dashed var(--line);font-size:12px;font-weight:800;white-space:nowrap;}
+  .dg-bar{flex:1;height:8px;background:#f0e6d8;border-radius:99px;overflow:hidden;border:1px solid var(--line);}
+  .dg-bar>i{display:block;height:100%;background:linear-gradient(90deg,#ff8a3d,#ffd23f);width:0;transition:width .4s;}
+  /* ===== バッジ ===== */
+  .badge-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .badge-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 2px;border:1.5px solid var(--line);border-radius:12px;background:#fffdf8;cursor:pointer;}
+  .badge-item .bi{font-size:24px;line-height:1;}
+  .badge-item .bn{font-size:9px;font-weight:800;text-align:center;line-height:1.3;color:var(--ink);}
+  .badge-item.locked{opacity:.5;}
+  .badge-item.locked .bi{filter:grayscale(1);}
+  /* ===== トースト通知 ===== */
+  .toast{position:fixed;top:16%;left:50%;transform:translate(-50%,0) scale(.85);background:#fff;border:2.5px solid var(--accent);border-radius:18px;padding:14px 24px;font-weight:800;text-align:center;z-index:400;box-shadow:0 8px 30px rgba(0,0,0,.25);opacity:0;transition:all .3s cubic-bezier(.2,1.2,.4,1);pointer-events:none;font-size:14px;line-height:1.7;max-width:80vw;}
+  .toast.show{opacity:1;transform:translate(-50%,0) scale(1);}
+  /* ===== カレンダー金色（もくひょうたっせい） ===== */
+  .cal-day.goal{background:linear-gradient(135deg,#ffd23f,#ffb300);color:#fff;font-weight:800;}
+  .cal-day.goal.today{outline:2px solid #e8a500;}
+  .cal-legend{display:flex;gap:14px;justify-content:center;margin-top:8px;font-size:10px;color:var(--muted);font-weight:700;}
+  .cal-lg{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px;}
+  .cal-lg.studied{background:var(--accent);}
+  .cal-lg.goal{background:linear-gradient(135deg,#ffd23f,#ffb300);}
+  /* ===== ボスチャレンジ ===== */
+  .boss-btn{background:linear-gradient(135deg,#ffb300,#ff6b35);color:#fff;border:none;border-radius:9px;font-family:inherit;font-weight:800;font-size:10px;padding:5px 9px;cursor:pointer;flex-shrink:0;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.15);}
+  .boss-quiz-btn{background:linear-gradient(135deg,#ffb300,#ff6b35);box-shadow:0 4px 0 #c47f00;animation:bosspulse 1.8s ease-in-out infinite;}
+  @keyframes bosspulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+  .boss-quiz-btn.cleared{background:linear-gradient(135deg,#3bb273,#2c8c59);box-shadow:0 4px 0 #1f6b43;animation:none;font-size:14px;}
+  .boss-btn.cleared{background:linear-gradient(135deg,#3bb273,#2c8c59);}
+  #bossBg{position:fixed;inset:0;background:var(--bg);z-index:210;flex-direction:column;overflow:hidden;}
+  #bossResult{position:fixed;inset:0;background:var(--bg);z-index:211;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="hdr">
-<<<<<<< HEAD
     <div class="hdr-top">
       <div class="logo">🎯 えいごクイズ！</div>
-      <button class="hdr-gear" id="settingsBtn" onclick="setView('manage')">⚙️</button>
+      <div style="display:flex;align-items:center;gap:6px">
+        <button id="streakBadge" class="streak-badge" onclick="setView('status')" style="display:none">🔥<span id="streakCount">0</span>日</button>
+        <button class="hdr-gear" id="settingsBtn" onclick="setView('manage')">⚙️</button>
+      </div>
     </div>
     <div class="hdr-sub">
       <button class="level-btn" id="levelBtn" onclick="openLevelModal()">📚 ...</button>
       <button class="who" id="playerBtn" onclick="openPlayerModal()">プレイヤー：<span id="playerNameDisplay">...</span> ▾</button>
-=======
-    <div class="logo">⭐ えいたんご</div>
-    <div class="hdr-right">
-      <button class="level-btn" id="levelBtn" onclick="openLevelModal()">📚 ...</button>
-      <button class="who" id="playerBtn" onclick="openPlayerModal()">プレイヤー：<span id="playerNameDisplay">...</span> ▾</button>
-      <button class="hdr-gear" id="settingsBtn" onclick="setView('manage')">⚙️</button>
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
     </div>
   </div>
   <div class="topbar">
@@ -205,10 +270,12 @@
       <span><span class="dot" style="background:var(--learn)"></span>まだ <b id="cLearn">0</b></span>
       <span><span class="dot" style="background:var(--known)"></span>おぼえた <b id="cKnown">0</b></span>
     </div>
+    <div class="dg-row"><span id="dgLabel">🎯 きょう 0/10もん</span><div class="dg-bar"><i id="dgFill"></i></div></div>
   </div>
   <div class="tabs">
     <button class="tab on" id="tabQuiz" onclick="setView('quiz')">✏️ れんしゅう</button>
     <button class="tab" id="tabList" onclick="setView('list')">📋 いちらん</button>
+    <button class="tab" id="tabStatus" onclick="setView('status')">📊 せいせき</button>
     <button class="tab" id="tabBattle" onclick="openBattleSetup()">⚔️ たいせん<small>2〜5人で対戦</small></button>
   </div>
   <div id="secFilterRow"></div>
@@ -231,13 +298,19 @@
         <button id="readBtn" class="hintbtn" style="display:none" onclick="speakCurrent()">🔊 よむ</button>
         <button id="detailBtn" class="hintbtn" style="display:none" onclick="openDetail()">📖 解説</button>
       </div>
-      <div class="btns" id="answerBtns">
-        <button class="btn ghost small" onclick="reveal()">こたえを みる</button>
-        <button class="btn primary" onclick="check()">こたえあわせ</button>
+      <div class="btns" id="bossBanner" style="display:none">
+        <button class="btn boss-quiz-btn" id="bossBannerBtn" onclick="bossFromQuiz()">👑 ボスに ちょうせん！</button>
+      </div>
+      <div class="btns" id="answerBtns" style="flex-direction:column">
+        <button class="btn primary big" onclick="check()">こたえあわせ</button>
+        <div style="display:flex;gap:10px">
+          <button class="btn ghost sub" style="flex:1.3" onclick="reveal()">こたえを みる</button>
+          <button class="btn ghost sub" style="flex:1;color:var(--muted)" onclick="skipCard()">スキップ →</button>
+        </div>
       </div>
       <div class="btns" id="nextBtns" style="display:none">
-        <button class="btn ghost" onclick="markAndNext('learn')">もういちど</button>
-        <button class="btn green" onclick="markAndNext('known')">おぼえた！</button>
+        <button class="btn ghost" onclick="againCard()">もういちど</button>
+        <button class="btn primary" onclick="goNext()">次の問題 →</button>
       </div>
     </div>
     <div class="footer"><button class="reset" onclick="resetScope()">▶ この はんいの きろくを リセット</button></div>
@@ -248,8 +321,52 @@
     <div id="listBody"></div>
   </div>
 
+  <!-- STATUS -->
+  <div id="statusView" style="display:none;padding:4px 0 16px">
+
+    <div class="stat-card">
+      <div class="stat-heading">📚 ぜんたいのせいせき</div>
+      <div class="stat-total-row">
+        <span id="statKnownTotal">0</span>/<span id="statGrandTotal">0</span>語
+        <span id="statPctTotal" class="stat-pct">0%</span>
+      </div>
+      <div class="prog-bar-wrap"><div id="statBarTotal" class="prog-bar-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-heading">🔥 ストリーク</div>
+      <div class="streak-main">
+        <span id="statStreakNum" class="streak-big">0</span>
+        <span class="streak-unit">日連続</span>
+        <span class="streak-best">（最長 <span id="statBestStreak">0</span>日）</span>
+      </div>
+      <div id="streakCalendar"></div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-heading">🎖️ バッジ <span id="badgeCount" style="font-size:12px;color:var(--muted);font-weight:700"></span></div>
+      <div class="badge-grid" id="badgeGrid"></div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-heading">📊 レベルべつ</div>
+      <div id="levelAccordion"></div>
+    </div>
+
+  </div>
+
   <!-- MANAGE -->
   <div id="manageView" style="display:none">
+    <div class="panel" style="cursor:pointer" onclick="setView('status')">
+      <h3>🔥 ストリーク</h3>
+      <div id="manageStreakInfo" style="font-size:13px;font-weight:700;color:var(--muted)">読み込み中…</div>
+      <div style="font-size:11px;color:var(--accent-d);margin-top:6px;font-weight:800">→ 📊 くわしいせいせきをみる</div>
+    </div>
+    <div class="panel">
+      <h3>🎯 きょうの もくひょう</h3>
+      <p>1日に せいかいする もんだいのかず。たっせいすると カレンダーが 金色になります。</p>
+      <div class="bt-tgl-row" id="goalBtns"></div>
+    </div>
     <div class="panel">
       <h3>📊 ストレージ使用量</h3>
       <div id="storageInfo">読み込み中…</div>
@@ -282,7 +399,6 @@
 </div>
 
 <!-- 編集シート（写真管理） -->
-<<<<<<< HEAD
 <div class="sheet-bg" id="detailBg"><div class="sheet" style="padding:20px 16px calc(28px + env(safe-area-inset-bottom))">
   <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:8px">
     <div style="flex:1">
@@ -306,12 +422,6 @@
   </div>
   <div id="edDetailContent"></div>
   <hr class="d-divider" style="margin:14px 0">
-=======
-<div class="sheet-bg" id="sheetBg"><div class="sheet">
-  <h3><span id="edTitle">たんごを へんしゅう</span><button class="close" onclick="closeSheet()">✕</button></h3>
-  <div class="ed-pic" id="edPic"></div>
-  <button class="btn blue small" style="width:100%" onclick="document.getElementById('photoFile').click()">📷 写真をえらぶ / さつえいする</button>
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
   <label class="lbl">いまの じょうたい</label>
   <div class="statusrow" id="edStatus">
     <button data-s="new" class="snew" onclick="setEdStatus('new')">みがくしゅう</button>
@@ -324,16 +434,11 @@
 <!-- レベル選択モーダル -->
 <div id="levelModalBg" style="display:none" onclick="closeLevelModal()">
   <div id="levelModal" onclick="event.stopPropagation()">
-<<<<<<< HEAD
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
       <button class="minibtn" id="lvBackBtn" style="display:none;padding:6px 10px;flex-shrink:0" onclick="lvBack()">← もどる</button>
       <div class="modal-title" id="lvTitle" style="margin:0;flex:1">📚 レベルをえらぶ</div>
     </div>
     <div id="levelList" style="max-height:60vh;overflow-y:auto"></div>
-=======
-    <div class="modal-title">📚 レベルをえらぶ</div>
-    <div id="levelList"></div>
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
     <button class="minibtn" style="width:100%;margin-top:12px" onclick="closeLevelModal()">とじる</button>
   </div>
 </div>
@@ -379,8 +484,9 @@
       <div class="tag" id="btQTag"></div>
       <div class="pic" id="btQPic"></div>
       <div class="hint hidden" id="btQHint"><span id="btQHintTxt"></span></div>
+      <div class="hint" id="btQPartialHint" style="display:none;font-family:'Baloo 2',sans-serif;font-size:20px;font-weight:800;letter-spacing:3px;color:var(--accent-d);text-align:center"></div>
       <div class="hint-btns">
-        <button class="hintbtn" onclick="btToggleHint()">💬 ヒント（にほんご）</button>
+        <button class="hintbtn" id="btHintBtn" onclick="btToggleHint()">💬 ヒント（にほんご）</button>
         <button class="hintbtn" onclick="btSpeak()">🔊 ヒント（えいごのおと）</button>
       </div>
       <input class="ans" id="btAns" type="text" inputmode="latin" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="えいごで かこう" enterkeyhint="done">
@@ -406,10 +512,35 @@
   </div>
 </div>
 
-<<<<<<< HEAD
-=======
-<input type="file" id="photoFile" class="hidefile" accept="image/*">
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
+<!-- ===== ボスチャレンジ ===== -->
+<div id="bossBg" style="display:none">
+  <div class="bt-tmwrap"><div class="bt-tmbar" id="bossTmBar" style="width:0%"></div></div>
+  <div class="bt-qhdr"><span>👑 ボスチャレンジ</span><span id="bossTmNum"></span><button class="bt-quit" onclick="bossQuit()">やめる</button></div>
+  <div class="bt-qbody">
+    <div class="quiz" style="margin-top:8px">
+      <div class="tag" id="bossTag"></div>
+      <div class="stat" id="bossProg" style="background:#e8a500;color:#fff"></div>
+      <div class="pic" id="bossPic"></div>
+      <div class="hint" id="bossHint"><span id="bossHintTxt"></span></div>
+      <input class="ans" id="bossAns" type="text" inputmode="latin" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="えいごで かこう" enterkeyhint="done">
+      <div class="feedback" id="bossFb"></div>
+      <div class="btns" id="bossAbtn">
+        <button class="btn primary" onclick="bossCheck()">こたえあわせ</button>
+      </div>
+      <div class="btns" id="bossNbtn" style="display:none">
+        <button class="btn green" id="bossNbtnInner" onclick="bossNext()">つぎへ →</button>
+      </div>
+    </div>
+    <p style="text-align:center;font-size:11px;color:var(--muted);font-weight:700;margin-top:10px">ヒント・スキップなし！20秒いないに こたえよう（ぜんもん せいかいで ごうかく！）</p>
+  </div>
+</div>
+<div id="bossResult" style="display:none">
+  <div class="bt-rtitle" id="bossRTitle"></div>
+  <div class="bt-rtable" id="bossRScore" style="font-weight:800;font-size:18px"></div>
+  <div class="bt-rwinner" id="bossRMsg"></div>
+  <div class="btns" style="width:100%;max-width:320px" id="bossRBtns"></div>
+</div>
+
 <input type="file" id="importFFile" class="hidefile" accept="application/json,.json">
 
 <script>
@@ -436,20 +567,15 @@ function initPlayers(){
 }
 async function switchPlayer(id){
   playerConfig.current=id;savePlayerConfig();
-<<<<<<< HEAD
   load();
   secFilter=['all'];queue=[];cur=null;answered=false;
   photoCache=await loadPhotosForPlayer(id);
   await migratePhotosIfNeeded();
   await setLevel(state.levelId||'elem',false);
-=======
-  scope='all';queue=[];cur=null;answered=false;
-  load();
-  photoCache=await loadPhotosForPlayer(id);
-  await migratePhotosIfNeeded();
-  await setLevel(state.levelId||'elem');
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
+  _calOffset=0;
   renderPlayerDisplay();
+  renderStreakBadge();
+  renderDailyGoal();
   closePlayerModal();
   setView('quiz');
 }
@@ -472,6 +598,7 @@ async function deletePlayer(id){
     load();photoCache=await loadPhotosForPlayer(playerConfig.current);
     await migratePhotosIfNeeded();
     await setLevel(state.levelId||'elem');
+    renderStreakBadge();
   }
   savePlayerConfig();renderPlayerModal();renderPlayerDisplay();
 }
@@ -535,42 +662,171 @@ async function migratePhotosIfNeeded(){
 
 /* ===== ストレージ ===== */
 let state=null;
-<<<<<<< HEAD
 let scope='all',secScope=null;
-=======
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
+function DEFAULT_STATE(){return{levelId:'elem',prog:{},streak:0,bestStreak:0,lastStudy:null,studyDates:[],correctCount:{},wrongCount:{},dailyCounts:{},dailyGoal:10,goalDates:[],goalCount:0,badges:{},bossClear:{},totalCorrect:0,battleCount:0,battleWins:0,anySectionClear:false};}
 function load(){
   try{
     const r=localStorage.getItem(dataKey());
     if(r){
       const parsed=JSON.parse(r);
-<<<<<<< HEAD
-      if(parsed.units){state={levelId:'elem',prog:{}};scope='all';secScope=null;return;}
-      state={levelId:parsed.levelId||'elem',prog:parsed.prog||{}};
-      scope=parsed.scope||'all';
-      secScope=parsed.secScope||null;
+      if(parsed.units){state=DEFAULT_STATE();scope='all';secScope=null;return;}
+      state=Object.assign(DEFAULT_STATE(),parsed);
+      scope=state.scope||'all';
+      secScope=state.secScope||null;
+      delete state.scope;delete state.secScope;
       return;
     }
   }catch(e){}
-  state={levelId:'elem',prog:{}};scope='all';secScope=null;
+  state=DEFAULT_STATE();scope='all';secScope=null;
 }
 function save(){
   try{localStorage.setItem(dataKey(),JSON.stringify({...state,scope,secScope}));}
-=======
-      if(parsed.units){state={levelId:'elem',prog:{}};return;}
-      state=parsed;
-      if(!state.prog)state.prog={};
-      return;
-    }
-  }catch(e){}
-  state={levelId:'elem',prog:{}};
-}
-function save(){
-  try{localStorage.setItem(dataKey(),JSON.stringify(state));}
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
   catch(e){alert('ほぞんできませんでした。バックアップを取ってください。');}
 }
 initPlayers();load();
+
+/* ===== ストリーク ===== */
+const LEVEL_TOTALS={elem:473,junior:5592,high:1797,other:4137,eiken:10487};
+const LEVEL_LABELS={elem:'小学_塾',junior:'中学',high:'高校',other:'その他',eiken:'英検'};
+function localDateStr(d){const t=d||new Date();return`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;}
+function updateStreak(){
+  const today=localDateStr();
+  if(state.lastStudy===today)return;
+  const yesterday=localDateStr(new Date(Date.now()-86400000));
+  state.streak=(state.lastStudy===yesterday)?(state.streak||0)+1:1;
+  if(state.streak>(state.bestStreak||0))state.bestStreak=state.streak;
+  state.lastStudy=today;
+  if(!state.studyDates)state.studyDates=[];
+  if(!state.studyDates.includes(today)){
+    state.studyDates.push(today);
+    const cutoff=localDateStr(new Date(Date.now()-60*86400000));
+    state.studyDates=state.studyDates.filter(d=>d>=cutoff);
+  }
+  save();
+  renderStreakBadge();
+}
+function effectiveStreak(){
+  // 最後の学習が今日・昨日以外ならストリークは切れている（次の解答で1から再開）
+  const today=localDateStr(),yesterday=localDateStr(new Date(Date.now()-86400000));
+  return(state.lastStudy===today||state.lastStudy===yesterday)?(state.streak||0):0;
+}
+function renderStreakBadge(){
+  const n=effectiveStreak();
+  document.getElementById('streakCount').textContent=n;
+  document.getElementById('streakBadge').style.display=n>0?'':'none';
+}
+function calcSectionStatus(sec){
+  let known=0,learn=0;
+  for(const w of sec.words){const s=statusOf(w.id);if(s==='known')known++;else if(s==='learn')learn++;}
+  const t=sec.words.length;
+  if(!t)return'none';
+  if(known===t)return'clear';
+  if(known>0||learn>0)return'doing';
+  return'none';
+}
+function quickLevelStats(){
+  const stats={};
+  for(const lv of Object.keys(LEVEL_TOTALS))stats[lv]={known:0,learn:0,total:LEVEL_TOTALS[lv]};
+  for(const[id,st]of Object.entries(state.prog)){
+    const lv=id.split('_')[0];
+    if(stats[lv]){if(st==='known')stats[lv].known++;else if(st==='learn')stats[lv].learn++;}
+  }
+  return stats;
+}
+
+/* ===== トースト通知 ===== */
+let _toastQ=[],_toastBusy=false;
+function showToast(html){_toastQ.push(html);_pumpToast();}
+function _pumpToast(){
+  if(_toastBusy||!_toastQ.length)return;_toastBusy=true;
+  const t=document.createElement('div');t.className='toast';t.innerHTML=_toastQ.shift();
+  document.body.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>{t.remove();_toastBusy=false;_pumpToast();},350);},2400);
+}
+
+/* ===== デイリーゴール ===== */
+function renderDailyGoal(){
+  const el=document.getElementById('dgLabel');if(!el)return;
+  const n=(state.dailyCounts||{})[localDateStr()]||0,g=state.dailyGoal||10;
+  const pct=Math.min(100,Math.round(n/g*100));
+  document.getElementById('dgFill').style.width=pct+'%';
+  if(n>=g){el.innerHTML='🎯 もくひょう たっせい！⭐ ('+n+'もん)';el.style.color='#e8a500';}
+  else{el.innerHTML=`🎯 きょう ${n}/${g}もん`;el.style.color='';}
+}
+function onDailyCorrect(){
+  const today=localDateStr();
+  if(!state.dailyCounts)state.dailyCounts={};
+  state.dailyCounts[today]=(state.dailyCounts[today]||0)+1;
+  state.totalCorrect=(state.totalCorrect||0)+1;
+  const cutoff=localDateStr(new Date(Date.now()-60*86400000));
+  for(const d of Object.keys(state.dailyCounts))if(d<cutoff)delete state.dailyCounts[d];
+  if(state.dailyCounts[today]>=(state.dailyGoal||10)&&!(state.goalDates||[]).includes(today)){
+    if(!state.goalDates)state.goalDates=[];
+    state.goalDates.push(today);
+    state.goalDates=state.goalDates.filter(x=>x>=cutoff);
+    state.goalCount=(state.goalCount||0)+1;
+    showToast('🎯⭐<br><b>きょうの もくひょう たっせい！</b>');
+    confetti();setTimeout(confetti,300);
+  }
+  save();
+  renderDailyGoal();
+  checkBadges();
+}
+function renderGoalBtns(){
+  const g=state.dailyGoal||10;
+  document.getElementById('goalBtns').innerHTML=[5,10,20,30].map(n=>`<button class="bt-tgl ${g===n?'on':''}" onclick="setDailyGoal(${n})">${n}もん</button>`).join('');
+}
+function setDailyGoal(n){state.dailyGoal=n;save();renderGoalBtns();renderDailyGoal();}
+
+/* ===== バッジ（実績） ===== */
+function knownCount(){let n=0;for(const v of Object.values(state.prog))if(v==='known')n++;return n;}
+const BADGES=[
+  {id:'c1',   icon:'🌱',name:'はじめのいっぽ',  desc:'はじめて せいかいした',       hint:'1もん せいかいしよう',                cond:s=>(s.totalCorrect||0)>=1},
+  {id:'c100', icon:'💪',name:'100もんせいかい', desc:'ぜんぶで 100もん せいかい',   hint:'たくさん もんだいを とこう',           cond:s=>(s.totalCorrect||0)>=100},
+  {id:'c1000',icon:'🎓',name:'1000もんせいかい',desc:'ぜんぶで 1000もん せいかい',  hint:'もっと もっと もんだいを とこう',       cond:s=>(s.totalCorrect||0)>=1000},
+  {id:'k10',  icon:'⭐',name:'10ごおぼえた',    desc:'10ご「おぼえた」になった',    hint:'10ご おぼえよう',                     cond:()=>knownCount()>=10},
+  {id:'k50',  icon:'🌟',name:'50ごおぼえた',    desc:'50ご「おぼえた」になった',    hint:'50ご おぼえよう',                     cond:()=>knownCount()>=50},
+  {id:'k100', icon:'👑',name:'100ごおぼえた',   desc:'100ご「おぼえた」になった',   hint:'100ご おぼえよう',                    cond:()=>knownCount()>=100},
+  {id:'k500', icon:'💎',name:'500ごおぼえた',   desc:'500ご「おぼえた」になった',   hint:'500ご おぼえよう',                    cond:()=>knownCount()>=500},
+  {id:'s3',   icon:'🔥',name:'3日れんぞく',     desc:'3日 つづけて べんきょうした', hint:'3日 つづけて やってみよう',            cond:s=>(s.streak||0)>=3},
+  {id:'s7',   icon:'🚀',name:'7日れんぞく',     desc:'7日 つづけて べんきょうした', hint:'1しゅうかん つづけよう',               cond:s=>(s.streak||0)>=7},
+  {id:'s30',  icon:'🏆',name:'30日れんぞく',    desc:'30日 つづけて べんきょうした',hint:'1かげつ つづけよう',                  cond:s=>(s.streak||0)>=30},
+  {id:'g1',   icon:'🎯',name:'もくひょうたっせい',desc:'きょうの もくひょうを たっせい',hint:'きょうの もくひょうを たっせいしよう',cond:s=>(s.goalCount||0)>=1},
+  {id:'g10',  icon:'🎪',name:'もくひょう10回',  desc:'もくひょうたっせい 10回',     hint:'もくひょうを 10回 たっせいしよう',     cond:s=>(s.goalCount||0)>=10},
+  {id:'sec1', icon:'🚩',name:'セクションクリア',desc:'セクションを ぜんぶ おぼえた',hint:'セクションの たんごを ぜんぶ おぼえよう',cond:s=>!!s.anySectionClear},
+  {id:'boss1',icon:'😈',name:'ボスたおした',    desc:'ボスチャレンジに ごうかく',   hint:'クリアしたセクションの ボスに かとう',  cond:s=>Object.keys(s.bossClear||{}).length>=1},
+  {id:'boss5',icon:'🐲',name:'ボス5たい',       desc:'ボスチャレンジ 5回 ごうかく', hint:'ボスを 5たい たおそう',               cond:s=>Object.keys(s.bossClear||{}).length>=5},
+  {id:'bt1',  icon:'⚔️',name:'たいせんデビュー',desc:'たいせんに さんかした',       hint:'かぞくと たいせんしてみよう',          cond:s=>(s.battleCount||0)>=1},
+  {id:'btw1', icon:'🥇',name:'たいせんチャンピオン',desc:'たいせんで かった',       hint:'たいせんで かとう',                   cond:s=>(s.battleWins||0)>=1},
+];
+function checkBadges(){
+  if(!state.badges)state.badges={};
+  let earned=false;
+  for(const b of BADGES){
+    if(state.badges[b.id])continue;
+    let ok=false;try{ok=b.cond(state);}catch(e){}
+    if(ok){
+      state.badges[b.id]=localDateStr();earned=true;
+      showToast(`<span style="font-size:30px">${b.icon}</span><br>バッジ かくとく！<br><b>${b.name}</b>`);
+      confetti();
+    }
+  }
+  if(earned){save();if(view==='status')renderBadges();}
+}
+function badgeInfo(i){
+  const b=BADGES[i];const e=(state.badges||{})[b.id];
+  if(e)showToast(`${b.icon} <b>${b.name}</b><br><span style="font-size:12px;color:var(--muted)">${b.desc}（${e}）</span>`);
+  else showToast(`❓ <b>ひみつのバッジ</b><br><span style="font-size:12px;color:var(--muted)">ヒント：${b.hint}</span>`);
+}
+function renderBadges(){
+  const got=state.badges||{};
+  document.getElementById('badgeCount').textContent=Object.keys(got).length+' / '+BADGES.length;
+  document.getElementById('badgeGrid').innerHTML=BADGES.map((b,i)=>{
+    const e=got[b.id];
+    return`<div class="badge-item ${e?'':'locked'}" onclick="badgeInfo(${i})"><span class="bi">${e?b.icon:'❓'}</span><span class="bn">${e?b.name:'？？？'}</span></div>`;
+  }).join('');
+}
 
 /* ===== レベル ===== */
 async function loadLevelData(levelId){
@@ -583,16 +839,11 @@ async function loadLevelData(levelId){
     return data;
   }catch(e){console.error('Failed to load level',levelId,e);return null;}
 }
-<<<<<<< HEAD
 async function setLevel(levelId,resetScope=true){
-=======
-async function setLevel(levelId){
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
   const data=await loadLevelData(levelId);
   if(!data)return;
   currentLevelData=data;
   state.levelId=levelId;
-<<<<<<< HEAD
   if(resetScope){scope='all';secScope=null;secFilter=['all'];}
   else{
     // Validate scope/secScope against new level data to fix stale cross-level values
@@ -607,10 +858,6 @@ async function setLevel(levelId){
   }
   save();
   queue=[];cur=null;
-=======
-  save();
-  scope='all';queue=[];cur=null;
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
   renderLevelBtn();
   renderChips();
   renderProgress();
@@ -620,7 +867,6 @@ function renderLevelBtn(){
   const lv=LEVELS.find(l=>l.id===lid)||LEVELS[0];
   document.getElementById('levelBtn').textContent='📚 '+lv.label+' ▾';
 }
-<<<<<<< HEAD
 let _lvStep='level',_lvLevelId=null;
 function openLevelModal(){
   _lvStep='level';_lvLevelId=null;
@@ -823,12 +1069,45 @@ function selectScope(id){
 function selectSection(secId){secScope=secId;cur=null;queue=[];save();renderChips();renderProgress();if(view==='quiz')nextCard();else if(view==='list')renderList();}
 
 /* ===== クイズ ===== */
+function onCorrect(id){
+  if(!state.correctCount)state.correctCount={};
+  const cc=(state.correctCount[id]||0)+1;
+  state.correctCount[id]=cc;
+  if(cc>=2){state.prog[id]='known';}
+  else if(statusOf(id)!=='known'){state.prog[id]='learn';}
+  save();
+}
+function onWrong(id){
+  if(!state.correctCount)state.correctCount={};
+  if(!state.wrongCount)state.wrongCount={};
+  state.correctCount[id]=0;
+  state.wrongCount[id]=(state.wrongCount[id]||0)+1;
+  state.prog[id]='learn';
+  save();
+}
+function againCard(){cancelSpeakTimer();if(!cur){nextCard();return;}renderQuiz();}
+function goNext(){cancelSpeakTimer();renderProgress();renderChips();nextCard();}
+function skipCard(){cancelSpeakTimer();nextCard();}
 function buildQueue(){
   const pool=scopeWords();
-  let w=[];
-  pool.forEach(it=>{const s=statusOf(it.w.id);let n=s==='known'?1:s==='learn'?4:3;for(let i=0;i<n;i++)w.push(it);});
-  for(let i=w.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[w[i],w[j]]=[w[j],w[i]];}
-  queue=w;
+  const failing=[],unseen=[],ontrack=[],known=[];
+  const cc=id=>(state.correctCount||{})[id]||0;
+  const wc=id=>(state.wrongCount||{})[id]||0;
+  pool.forEach(it=>{
+    const s=statusOf(it.w.id);
+    if(s==='known')known.push(it);
+    else if(s==='new')unseen.push(it);
+    else if(cc(it.w.id)===0)failing.push(it);
+    else ontrack.push(it);
+  });
+  const byWrong=arr=>arr.sort((a,b)=>wc(b.w.id)-wc(a.w.id));
+  const shuffle=arr=>{for(let i=arr.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;};
+  byWrong(failing);shuffle(unseen);byWrong(ontrack);
+  const nonKnown=failing.length+unseen.length+ontrack.length;
+  let kr;
+  if(nonKnown===0){kr=shuffle([...known]);}
+  else{const n=Math.min(5,Math.max(known.length>0?1:0,Math.floor(known.length*.1)));kr=shuffle([...known]).slice(0,n);}
+  queue=[...failing,...unseen,...ontrack,...kr];
 }
 function nextCard(){
   if(scopeWords().length===0){renderEmptyQuiz();return;}
@@ -843,6 +1122,7 @@ function renderEmptyQuiz(){
   document.getElementById('qPic').innerHTML='<div class="ph">レベルを選んで<br>セクションをえらんでね</div>';
   document.getElementById('ansInput').style.display='none';
   document.getElementById('answerBtns').style.display='none';
+  document.getElementById('bossBanner').style.display='none';
   document.getElementById('qPartialHint').style.display='none';
   _partialHintMask=null;
   const isElem=currentLevelData?.levelId==='elem';
@@ -864,7 +1144,9 @@ function renderQuiz(){
   const c=document.getElementById('quizCard');
   c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop');
   document.getElementById('qTag').textContent=currentLevelData?.levelId==='elem'?displaySubcatName(cur.sec.subcat):cur.sec.name;
-  const s=SL[statusOf(cur.w.id)];
+  const _cc=(state.correctCount||{})[cur.w.id]||0;
+  const _st=statusOf(cur.w.id);
+  const s=_st==='known'?['おぼえた','var(--known)','#fff']:_st==='learn'&&_cc===1?['⭐ あとひとつ','#ff9500','#fff']:SL[_st];
   const st=document.getElementById('qStat');
   st.textContent=s[0];st.style.background=s[1];st.style.color=s[2];
   document.getElementById('qPic').innerHTML=picHtml(cur.w,true);
@@ -874,6 +1156,7 @@ function renderQuiz(){
   else{document.getElementById('qHint').classList.remove('hidden');}
   document.getElementById('qPartialHint').style.display='none';
   _partialHintMask=_isElem?null:makeHintMask(cur.w.e);
+  _hintUsed=false;
   document.getElementById('hintBtn').textContent=_isElem?'💬 ヒント（にほんご）':'💬 ヒント（部分表示）';
   const inp=document.getElementById('ansInput');
   inp.style.display='';inp.value='';inp.className='ans';inp.disabled=false;
@@ -883,8 +1166,9 @@ function renderQuiz(){
   document.getElementById('nextBtns').style.display='none';
   document.getElementById('readBtn').style.display='none';
   document.getElementById('detailBtn').style.display='none';
+  renderBossBanner();
 }
-let _partialHintMask=null;
+let _partialHintMask=null,_hintUsed=false,_calOffset=0,_btPartialHintMask=null;
 function makeHintMask(word){
   return word.split('/')[0].trim().split(' ').map(w=>{
     const n=w.length;
@@ -895,6 +1179,7 @@ function makeHintMask(word){
   }).join(' ');
 }
 function hintBtnClick(){
+  _hintUsed=true;
   if(currentLevelData?.levelId==='elem'){document.getElementById('qHint').classList.toggle('hidden');}
   else{showPartialHint();}
 }
@@ -932,25 +1217,39 @@ function speak(text){
   }
   _next(0);
 }
-function speakCurrent(){if(cur)speak(cur.w.e);}
+function speakCurrent(){if(!answered)_hintUsed=true;if(cur)speak(cur.w.e);}
 let _speakTimer=null;
 function speakAfterDelay(text){if(_speakTimer)clearTimeout(_speakTimer);_speakTimer=setTimeout(()=>{speak(text);_speakTimer=null;},1000);}
 function cancelSpeakTimer(){if(_speakTimer){clearTimeout(_speakTimer);_speakTimer=null;}}
-function playSound(notes){try{const ctx=_getSfxCtx();const t=ctx.currentTime;notes.forEach(([f,s,d])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0.28,t+s);g.gain.exponentialRampToValueAtTime(0.001,t+s+d);o.start(t+s);o.stop(t+s+d);});}catch(e){}}
-function playCorrect(){try{const ctx=_getSfxCtx();const t=ctx.currentTime;[[392,0,0.09,'sine'],[523,0.08,0.09,'sine'],[659,0.16,0.09,'sine'],[523,0.27,0.75,'triangle'],[659,0.27,0.75,'triangle'],[784,0.27,0.75,'triangle'],[1047,0.27,0.55,'sine']].forEach(([f,s,d,tp])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type=tp;o.frequency.value=f;g.gain.setValueAtTime(0.22,t+s);g.gain.exponentialRampToValueAtTime(0.001,t+s+d);o.start(t+s);o.stop(t+s+d);});}catch(e){}}
+function playSound(notes){try{const ctx=_getSfxCtx();const _go=()=>{const t=ctx.currentTime;notes.forEach(([f,s,d])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0.28,t+s);g.gain.exponentialRampToValueAtTime(0.001,t+s+d);o.start(t+s);o.stop(t+s+d);});};if(ctx.state==='running')_go();else ctx.resume().then(_go).catch(()=>{});}catch(e){}}
+function playCorrect(){try{const ctx=_getSfxCtx();const _go=()=>{const t=ctx.currentTime;[[392,0,0.09,'sine'],[523,0.08,0.09,'sine'],[659,0.16,0.09,'sine'],[523,0.27,0.75,'triangle'],[659,0.27,0.75,'triangle'],[784,0.27,0.75,'triangle'],[1047,0.27,0.55,'sine']].forEach(([f,s,d,tp])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type=tp;o.frequency.value=f;g.gain.setValueAtTime(0.22,t+s);g.gain.exponentialRampToValueAtTime(0.001,t+s+d);o.start(t+s);o.stop(t+s+d);});};if(ctx.state==='running')_go();else ctx.resume().then(_go).catch(()=>{});}catch(e){}}
 function playWrong(){playSound([[311,0,0.28],[233,0.22,0.38]]);}
 function accepted(w){return w.e.split('/').map(x=>norm(x)).filter(Boolean);}
 function check(){
   if(answered||!cur)return;
   const inp=document.getElementById('ansInput');
   const v=norm(inp.value);if(!v){inp.focus();return;}
+  updateStreak();
+  const _bb=bossAvailableForCur();
+  const _bossBefore=!!(_bb&&!_bb.crowned);
   const ok=accepted(cur.w).includes(v);
   answered=true;inp.disabled=true;
+  if(ok&&!_hintUsed){onCorrect(cur.w.id);}else if(ok&&_hintUsed){if(statusOf(cur.w.id)==='new'){state.prog[cur.w.id]='learn';save();}}else{onWrong(cur.w.id);}
+  if(ok){
+    if(cur.sec&&calcSectionStatus(cur.sec)==='clear')state.anySectionClear=true;
+    const _ba=bossAvailableForCur();
+    if(!_bossBefore&&_ba&&!_ba.crowned){
+      showToast('🎉 <b>おめでとう！</b><br>👑 <b>ボスチャレンジが しゅつげん！！</b>');
+      setTimeout(playBtReady,700);setTimeout(confetti,500);
+    }
+    onDailyCorrect();
+  }
+  renderBossBanner();
   const fb=document.getElementById('feedback');
   document.getElementById('answerBtns').style.display='none';
   document.getElementById('nextBtns').style.display='flex';
-  if(ok){inp.classList.add('ok');fb.innerHTML='🎉 せいかい！ <span class="correctword">'+cur.w.e+'</span>';fb.style.color='var(--known)';confetti();playCorrect();}
-  else{inp.classList.add('ng');fb.innerHTML='おしい！ こたえ → <span class="correctword">'+cur.w.e+'</span>';fb.style.color='var(--learn)';document.getElementById('qHint').classList.remove('hidden');playWrong();}
+  if(ok){inp.classList.add('ok');fb.innerHTML='🎉 せいかい！ <span class="correctword">'+esc(cur.w.e)+'</span>';fb.style.color='var(--known)';confetti();playCorrect();}
+  else{inp.classList.add('ng');fb.innerHTML='おしい！ こたえ → <span class="correctword">'+esc(cur.w.e)+'</span>';fb.style.color='var(--learn)';document.getElementById('qHint').classList.remove('hidden');playWrong();}
   speakAfterDelay(cur.w.e);
   document.getElementById('readBtn').style.display='';
   document.getElementById('detailBtn').style.display='';
@@ -958,8 +1257,10 @@ function check(){
 function reveal(){
   if(answered||!cur)return;
   answered=true;document.getElementById('ansInput').disabled=true;
+  onWrong(cur.w.id);
+  renderBossBanner();
   document.getElementById('qHint').classList.remove('hidden');
-  document.getElementById('feedback').innerHTML='こたえ → <span class="correctword">'+cur.w.e+'</span>';
+  document.getElementById('feedback').innerHTML='こたえ → <span class="correctword">'+esc(cur.w.e)+'</span>';
   document.getElementById('feedback').style.color='var(--ink)';
   document.getElementById('answerBtns').style.display='none';
   document.getElementById('nextBtns').style.display='flex';
@@ -967,8 +1268,8 @@ function reveal(){
   document.getElementById('detailBtn').style.display='';
   playWrong();speakAfterDelay(cur.w.e);
 }
-function markAndNext(s){cancelSpeakTimer();if(cur)setStatus(cur.w.id,s);renderProgress();renderChips();nextCard();}
-document.getElementById('ansInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(!answered)check();}});
+
+document.getElementById('ansInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();_ensureAudioReady();if(!answered)check();}});
 
 /* ===== いちらん ===== */
 function renderList(){
@@ -1054,225 +1355,10 @@ function saveSheet(){
   else if(view==='quiz'&&cur&&edId===cur.w.id)renderQuiz();
 }
 
-=======
-function openLevelModal(){
-  const lid=currentLevelData?currentLevelData.levelId:(state.levelId||'elem');
-  document.getElementById('levelList').innerHTML=LEVELS.map(lv=>
-    `<div class="prow ${lv.id===lid?'pon':''}"><button class="pname" onclick="doSetLevel('${lv.id}')">${lv.label}</button><span style="font-size:11px;color:var(--muted);font-weight:700">${lv.words.toLocaleString()}語</span></div>`
-  ).join('');
-  document.getElementById('levelModalBg').style.display='flex';
-}
-async function doSetLevel(levelId){
-  closeLevelModal();
-  await setLevel(levelId);
-  answered=false;
-  nextCard();
-}
-function closeLevelModal(){document.getElementById('levelModalBg').style.display='none';}
-
-/* ===== スコープ・単語 ===== */
-let view='quiz',scope='all',queue=[],cur=null,answered=false;
-function norm(s){return(s||'').toLowerCase().trim().replace(/\s+/g,' ').replace(/[.。]/g,'');}
-function statusOf(id){return state.prog[id]||'new';}
-function setStatus(id,s){state.prog[id]=s;save();}
-function scopeWords(){
-  if(!currentLevelData)return[];
-  const words=[];
-  for(const sec of currentLevelData.sections){
-    if(scope==='all'||scope===sec.id){
-      for(const w of sec.words)words.push({sec,w});
-    }
-  }
-  return words;
-}
-function findWord(id){
-  if(!currentLevelData)return null;
-  for(const sec of currentLevelData.sections){
-    for(const w of sec.words){if(w.id===id)return{sec,w};}
-  }
-  return null;
-}
-
-function renderProgress(){
-  const l=scopeWords();
-  let n=0,le=0,k=0;
-  l.forEach(({w})=>{const s=statusOf(w.id);s==='known'?k++:s==='learn'?le++:n++;});
-  const t=l.length||1,pct=Math.round(k/t*100);
-  document.getElementById('pctTxt').textContent=pct+'%';
-  document.getElementById('barFill').style.width=pct+'%';
-  document.getElementById('cNew').textContent=n;
-  document.getElementById('cLearn').textContent=le;
-  document.getElementById('cKnown').textContent=k;
-  const secName=scope==='all'?'ぜんぶ':(currentLevelData?currentLevelData.sections.find(s=>s.id===scope)?.name||scope:scope);
-  document.getElementById('scopeName').textContent=secName+' の すすみぐあい';
-}
-
-function renderChips(){
-  if(!currentLevelData){document.getElementById('chips').innerHTML='';return;}
-  let tot=0,totK=0;
-  for(const sec of currentLevelData.sections){
-    for(const w of sec.words){tot++;if(statusOf(w.id)==='known')totK++;}
-  }
-  let h=`<button class="chip ${scope==='all'?'on':''}" onclick="selectScope('all')">ぜんぶ <small>${totK}/${tot}</small></button>`;
-  for(const sec of currentLevelData.sections){
-    let k=0;
-    sec.words.forEach(w=>{if(statusOf(w.id)==='known')k++;});
-    h+=`<button class="chip ${scope===sec.id?'on':''}" onclick="selectScope('${sec.id}')">${esc(sec.name)} <small>${k}/${sec.words.length}</small></button>`;
-  }
-  document.getElementById('chips').innerHTML=h;
-}
-
-function selectScope(id){scope=id;cur=null;queue=[];renderChips();renderProgress();if(view==='quiz')nextCard();else if(view==='list')renderList();}
-
-/* ===== クイズ ===== */
-function buildQueue(){
-  const pool=scopeWords();
-  let w=[];
-  pool.forEach(it=>{const s=statusOf(it.w.id);let n=s==='known'?1:s==='learn'?4:3;for(let i=0;i<n;i++)w.push(it);});
-  for(let i=w.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[w[i],w[j]]=[w[j],w[i]];}
-  queue=w;
-}
-function nextCard(){
-  if(scopeWords().length===0){renderEmptyQuiz();return;}
-  if(queue.length===0)buildQueue();
-  let p=queue.shift();
-  if(cur&&p&&p.w.id===cur.w.id&&queue.length>0){queue.push(p);p=queue.shift();}
-  cur=p;renderQuiz();
-}
-function renderEmptyQuiz(){
-  document.getElementById('qTag').textContent='';
-  document.getElementById('qStat').textContent='';
-  document.getElementById('qPic').innerHTML='<div class="ph">レベルを選んで<br>セクションをえらんでね</div>';
-  document.getElementById('ansInput').style.display='none';
-  document.getElementById('answerBtns').style.display='none';
-}
-const SL={new:['みがくしゅう','var(--new)','#fff'],learn:['まだ','var(--learn)','#fff'],known:['おぼえた','var(--known)','#fff']};
-
-function picHtml(w,big){
-  const cached=photoCache[w.id];
-  if(cached)return`<img src="${cached}" alt="">`;
-  if(w.img)return`<img src="${w.img}" alt="" onerror="this.parentElement.innerHTML='<div class=ph><b>📷</b></div>'">`;
-  return`<div class="ph"><b>📷</b>${big?'写真をつけよう':''}</div>`;
-}
-
-function renderQuiz(){
-  if(!cur){nextCard();return;}
-  answered=false;
-  const c=document.getElementById('quizCard');
-  c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop');
-  document.getElementById('qTag').textContent=cur.sec.name;
-  const s=SL[statusOf(cur.w.id)];
-  const st=document.getElementById('qStat');
-  st.textContent=s[0];st.style.background=s[1];st.style.color=s[2];
-  document.getElementById('qPic').innerHTML=picHtml(cur.w,true);
-  document.getElementById('qHintText').textContent=cur.w.j;
-  document.getElementById('qHint').classList.add('hidden');
-  const inp=document.getElementById('ansInput');
-  inp.style.display='';inp.value='';inp.className='ans';inp.disabled=false;
-  document.getElementById('feedback').textContent='';
-  document.getElementById('feedback').style.color='';
-  document.getElementById('answerBtns').style.display='flex';
-  document.getElementById('nextBtns').style.display='none';
-  document.getElementById('readBtn').style.display='none';
-}
-function toggleHint(){document.getElementById('qHint').classList.toggle('hidden');}
-function speak(text){const u=new SpeechSynthesisUtterance(text.split('/')[0].trim());u.lang='en-US';u.rate=0.9;speechSynthesis.cancel();speechSynthesis.speak(u);}
-function speakCurrent(){if(cur)speak(cur.w.e);}
-function playSound(notes){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();notes.forEach(([f,t,d])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0.28,ctx.currentTime+t);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+d);o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+d);});}catch(e){}}
-function playCorrect(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const t=ctx.currentTime;[[392,0,0.09,'sine'],[523,0.08,0.09,'sine'],[659,0.16,0.09,'sine'],[523,0.27,0.75,'triangle'],[659,0.27,0.75,'triangle'],[784,0.27,0.75,'triangle'],[1047,0.27,0.55,'sine']].forEach(([f,s,d,tp])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type=tp;o.frequency.value=f;g.gain.setValueAtTime(0.22,t+s);g.gain.exponentialRampToValueAtTime(0.001,t+s+d);o.start(t+s);o.stop(t+s+d);});}catch(e){}}
-function playWrong(){playSound([[311,0,0.28],[233,0.22,0.38]]);}
-function accepted(w){return w.e.split('/').map(x=>norm(x)).filter(Boolean);}
-function check(){
-  if(answered||!cur)return;
-  const inp=document.getElementById('ansInput');
-  const v=norm(inp.value);if(!v){inp.focus();return;}
-  const ok=accepted(cur.w).includes(v);
-  answered=true;inp.disabled=true;
-  const fb=document.getElementById('feedback');
-  document.getElementById('answerBtns').style.display='none';
-  document.getElementById('nextBtns').style.display='flex';
-  if(ok){inp.classList.add('ok');fb.innerHTML='🎉 せいかい！ <span class="correctword">'+cur.w.e+'</span>';fb.style.color='var(--known)';confetti();playCorrect();}
-  else{inp.classList.add('ng');fb.innerHTML='おしい！ こたえ → <span class="correctword">'+cur.w.e+'</span>';fb.style.color='var(--learn)';document.getElementById('qHint').classList.remove('hidden');playWrong();}
-  document.getElementById('readBtn').style.display='';
-}
-function reveal(){
-  if(answered||!cur)return;
-  answered=true;document.getElementById('ansInput').disabled=true;
-  document.getElementById('qHint').classList.remove('hidden');
-  document.getElementById('feedback').innerHTML='こたえ → <span class="correctword">'+cur.w.e+'</span>';
-  document.getElementById('feedback').style.color='var(--ink)';
-  document.getElementById('answerBtns').style.display='none';
-  document.getElementById('nextBtns').style.display='flex';
-  document.getElementById('readBtn').style.display='';
-}
-function markAndNext(s){if(cur)setStatus(cur.w.id,s);renderProgress();renderChips();nextCard();}
-document.getElementById('ansInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(!answered)check();}});
-document.getElementById('qAddPhoto').addEventListener('click',()=>{if(cur)openSheet(cur.w.id);});
-
-/* ===== いちらん ===== */
-function renderList(){
-  const body=document.getElementById('listBody');
-  if(!currentLevelData){body.innerHTML='<p style="text-align:center;color:var(--muted);padding:20px">レベルをえらんでください</p>';return;}
-  const secs=scope==='all'?currentLevelData.sections:currentLevelData.sections.filter(s=>s.id===scope);
-  let h='';
-  if(scope==='all'){
-    const ls=[];
-    for(const sec of currentLevelData.sections){
-      for(const w of sec.words){if(statusOf(w.id)==='learn')ls.push(w);}
-    }
-    if(ls.length)h+=`<div class="secttitle"><span>🔥 にがてな たんご</span><span>${ls.length}こ</span></div><div class="grid">`+ls.map(w=>cellHtml(w)).join('')+'</div>';
-  }
-  for(const sec of secs){
-    let k=0;sec.words.forEach(w=>{if(statusOf(w.id)==='known')k++;});
-    h+=`<div class="secttitle"><span>${esc(sec.name)}</span><span>${k}/${sec.words.length}</span></div><div class="grid">`+sec.words.map(w=>cellHtml(w)).join('')+'</div>';
-  }
-  body.innerHTML=h;
-}
-function cellHtml(w){
-  const s=statusOf(w.id);
-  const b=s==='known'?'✅':s==='learn'?'🔴':'⬜';
-  return`<button class="cell s-${s}" onclick="openSheet('${w.id}')"><div class="thumb">${picHtml(w,false)}</div><div class="ct"><div class="cw">${esc(w.e)}</div><div class="cj">${esc(w.j)}</div></div><div class="badge">${b}</div></button>`;
-}
-function esc(s){return(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
-
-/* ===== 編集シート（写真・じょうたい） ===== */
-let edId=null,edStatus='new',pendingPhoto=null;
-function openSheet(id){
-  const f=findWord(id);if(!f)return;
-  edId=id;edStatus=statusOf(id);
-  document.getElementById('edTitle').textContent=f.w.e+' ／ '+f.w.j;
-  const cached=photoCache[id];
-  const imgSrc=cached||f.w.img;
-  document.getElementById('edPic').innerHTML=imgSrc?`<img src="${imgSrc}" alt="" style="width:100%;height:100%;object-fit:contain">`:`<div class="ph"><b>📷</b>まだ写真がありません</div>`;
-  pendingPhoto=null;
-  paintEdStatus();
-  document.getElementById('sheetBg').classList.add('show');
-}
-function setEdStatus(s){edStatus=s;paintEdStatus();}
-function paintEdStatus(){document.querySelectorAll('#edStatus button').forEach(b=>b.classList.toggle('on',b.dataset.s===edStatus));}
-function closeSheet(){document.getElementById('sheetBg').classList.remove('show');pendingPhoto=null;}
-document.getElementById('sheetBg').addEventListener('click',e=>{if(e.target.id==='sheetBg')closeSheet();});
-async function saveSheet(){
-  if(pendingPhoto)await savePhotoDB(edId,pendingPhoto);
-  state.prog[edId]=edStatus;
-  save();pendingPhoto=null;closeSheet();
-  renderChips();renderProgress();
-  if(view==='list')renderList();
-  else if(view==='quiz'&&cur&&edId===cur.w.id)renderQuiz();
-}
-function compress(img,sx,sy,sw,sh,max){const sc=Math.min(1,max/Math.max(sw,sh));const w=Math.round(sw*sc),h=Math.round(sh*sc);const cv=document.createElement('canvas');cv.width=w;cv.height=h;const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(img,sx,sy,sw,sh,0,0,w,h);return cv.toDataURL('image/jpeg',0.72);}
-document.getElementById('photoFile').addEventListener('change',function(){
-  const file=this.files[0];this.value='';if(!file)return;
-  const r=new FileReader();
-  r.onload=e=>{const img=new Image();img.onload=()=>{pendingPhoto=compress(img,0,0,img.width,img.height,380);document.getElementById('edPic').innerHTML=`<img src="${pendingPhoto}">`;};img.src=e.target.result;};
-  r.readAsDataURL(file);
-});
-
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
 /* ===== 書き出し・取り込み ===== */
 function dlJson(obj,filename){const blob=new Blob([JSON.stringify(obj)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),3000);}
 function datestamp(){const d=new Date();return d.getFullYear()+('0'+(d.getMonth()+1)).slice(-2)+('0'+d.getDate()).slice(-2);}
-function exportFull(){dlJson({type:'full',levelId:state.levelId,prog:state.prog,photos:photoCache},'eitango-backup-'+datestamp()+'.json');}
+function exportFull(){const{photos,...st}=state;dlJson({type:'full',...st,photos:photoCache},'eitango-backup-'+datestamp()+'.json');}
 document.getElementById('importFFile').addEventListener('change',function(){
   const f=this.files[0];this.value='';if(!f)return;
   const r=new FileReader();
@@ -1280,7 +1366,8 @@ document.getElementById('importFFile').addEventListener('change',function(){
     try{
       const obj=JSON.parse(e.target.result);
       if(!confirm('⚠️ 全データを復元します。\n進捗・写真がすべて置きかわります。\nよろしいですか？'))return;
-      state={levelId:obj.levelId||'elem',prog:obj.prog||{}};
+      state=Object.assign(DEFAULT_STATE(),obj);
+      delete state.type;delete state.photos;delete state.scope;delete state.secScope;
       await clearPhotosForPlayer(playerConfig.current);
       for(const[wid,b64]of Object.entries(obj.photos||{}))await savePhotoDB(wid,b64);
       save();
@@ -1291,44 +1378,182 @@ document.getElementById('importFFile').addEventListener('change',function(){
   };r.readAsText(f);
 });
 
+/* ===== ステータス画面 ===== */
+function calcMinCalOffset(){
+  const dates=state.studyDates||[];
+  if(!dates.length)return -2;
+  const earliest=dates.reduce((a,b)=>a<b?a:b);
+  const now=new Date();
+  const ed=new Date(earliest+'T00:00:00');
+  const diff=(now.getFullYear()-ed.getFullYear())*12+(now.getMonth()-ed.getMonth());
+  return -Math.min(diff,24);
+}
+function calNav(dir){
+  _calOffset=Math.min(0,Math.max(calcMinCalOffset(),_calOffset+dir));
+  renderStreakCalendar();
+}
+function renderStreakCalendar(){
+  const base=new Date();
+  base.setDate(1);
+  base.setMonth(base.getMonth()+_calOffset);
+  const y=base.getFullYear(),m=base.getMonth();
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const firstDow=(new Date(y,m,1).getDay()+6)%7;
+  const todayStr=localDateStr();
+  const dates=state.studyDates||[];
+  const goals=state.goalDates||[];
+  const minOff=calcMinCalOffset();
+  const prevDis=_calOffset<=minOff?'disabled':'';
+  const nextDis=_calOffset>=0?'disabled':'';
+  let html=`<div class="cal-nav"><button class="cal-nav-btn" onclick="calNav(-1)" ${prevDis}>‹</button><span class="cal-title">${y}年${m+1}月</span><button class="cal-nav-btn" onclick="calNav(1)" ${nextDis}>›</button></div><div class="cal-grid">`;
+  ['月','火','水','木','金','土','日'].forEach(d=>html+=`<div class="cal-dh">${d}</div>`);
+  for(let i=0;i<firstDow;i++)html+='<div></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const cl=[dates.includes(ds)?'studied':'',goals.includes(ds)?'goal':'',ds===todayStr?'today':''].join(' ').trim();
+    html+=`<div class="cal-day ${cl}">${d}</div>`;
+  }
+  html+='</div>';
+  html+='<div class="cal-legend"><span><span class="cal-lg studied"></span>やった日</span><span><span class="cal-lg goal"></span>もくひょうたっせい</span></div>';
+  document.getElementById('streakCalendar').innerHTML=html;
+}
+function renderStatusView(){
+  const lvStats=quickLevelStats();
+  const grandTotal=Object.values(LEVEL_TOTALS).reduce((s,v)=>s+v,0);
+  const totalKnown=Object.values(lvStats).reduce((s,v)=>s+v.known,0);
+  const pct=Math.round(totalKnown/grandTotal*100);
+  document.getElementById('statKnownTotal').textContent=totalKnown.toLocaleString();
+  document.getElementById('statGrandTotal').textContent=grandTotal.toLocaleString();
+  document.getElementById('statPctTotal').textContent=pct+'%';
+  document.getElementById('statBarTotal').style.width=pct+'%';
+  document.getElementById('statStreakNum').textContent=effectiveStreak();
+  document.getElementById('statBestStreak').textContent=state.bestStreak||0;
+  renderStreakCalendar();
+  renderBadges();
+  const acc=document.getElementById('levelAccordion');
+  acc.innerHTML=Object.keys(LEVEL_TOTALS).map(lv=>{
+    const {known,total}=lvStats[lv];
+    const p=Math.round(known/total*100);
+    return`<div class="lv-row" id="lvrow_${lv}">
+      <div class="lv-header" onclick="toggleLevelAccordion('${lv}')">
+        <span class="lv-label">${LEVEL_LABELS[lv]}</span>
+        <div class="lv-bar-wrap"><div class="lv-bar-fill" style="width:${p}%"></div></div>
+        <span class="lv-pct">${known.toLocaleString()}/${total.toLocaleString()}</span>
+        <span class="lv-chevron" id="chev_${lv}">▶</span>
+      </div>
+      <div class="lv-body" id="lvbody_${lv}"></div>
+    </div>`;
+  }).join('');
+}
+async function toggleLevelAccordion(lv){
+  const body=document.getElementById('lvbody_'+lv);
+  const chev=document.getElementById('chev_'+lv);
+  const isOpen=body.classList.contains('open');
+  if(isOpen){body.classList.remove('open');chev.style.transform='';return;}
+  body.classList.add('open');
+  chev.style.transform='rotate(90deg)';
+  if(body.dataset.loaded)return;
+  body.dataset.loaded='1';
+  body.innerHTML='<div style="padding:10px;color:var(--muted);font-size:13px">読み込み中…</div>';
+  const data=await loadLevelData(lv);
+  if(!data){body.innerHTML='<div style="padding:10px;color:var(--learn);font-size:13px">読み込み失敗</div>';return;}
+  const seenSubcats=new Set();
+  let html='<div>';
+  for(const sec of data.sections){
+    const subcat=sec.subcat||sec.name;
+    let subsecs=data.sections.filter(s=>(s.subcat||s.name)===subcat);
+    if(seenSubcats.has(subcat))continue;
+    seenSubcats.add(subcat);
+    const isElemLevel=(data.levelId==='elem');
+    const sq=subcat.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    if(isElemLevel){
+      const st=calcSectionStatus(sec);
+      const known=sec.words.filter(w=>statusOf(w.id)==='known').length;
+      const bkey=`${data.levelId}|${subcat}|${sec.id}`;
+      const crowned=(state.bossClear||{})[bkey];
+      const right=st==='clear'?`<button class="boss-btn ${crowned?'cleared':''}" onclick="event.stopPropagation();startBoss('${data.levelId}','${sq}','${sec.id}')">${crowned?'✅クリアずみ':'👑ちょうせん'}</button>`:`<span class="sec-arrow">›</span>`;
+      html+=`<div class="sec-item" onclick="goToSection('${data.levelId}','${sq}','${sec.id}')">
+        <span class="sec-dot ${st}"></span>
+        <span class="sec-name">${crowned?'👑 ':''}${esc(sec.name)}</span>
+        <span class="sec-count">${known}/${sec.words.length}</span>
+        ${right}
+      </div>`;
+    }else{
+      let allKnown=0,allTotal=0,anyDoing=false,allClear=true;
+      for(const s of subsecs){
+        const st=calcSectionStatus(s);
+        const kn=s.words.filter(w=>statusOf(w.id)==='known').length;
+        allKnown+=kn;allTotal+=s.words.length;
+        if(st!=='clear')allClear=false;
+        if(st==='doing'||st==='clear')anyDoing=true;
+      }
+      const dotCls=allClear?'clear':anyDoing?'doing':'none';
+      const bkey=`${data.levelId}|${subcat}|`;
+      const crowned=(state.bossClear||{})[bkey];
+      const right=dotCls==='clear'?`<button class="boss-btn ${crowned?'cleared':''}" onclick="event.stopPropagation();startBoss('${data.levelId}','${sq}',null)">${crowned?'✅クリアずみ':'👑ちょうせん'}</button>`:`<span class="sec-arrow">›</span>`;
+      html+=`<div class="sec-item" onclick="goToSection('${data.levelId}','${sq}',null)">
+        <span class="sec-dot ${dotCls}"></span>
+        <span class="sec-name">${crowned?'👑 ':''}${esc(subcat)}</span>
+        <span class="sec-count">${allKnown}/${allTotal}</span>
+        ${right}
+      </div>`;
+    }
+  }
+  html+='</div>';
+  body.innerHTML=html;
+}
+async function goToSection(levelId,subcatName,secId){
+  await setLevel(levelId,false);
+  selectScope(subcatName);
+  if(secId)selectSection(secId);
+  setView('quiz');
+}
+
 /* ===== ビュー管理 ===== */
 function setView(v){
   view=v;
   document.getElementById('tabQuiz').classList.toggle('on',v==='quiz');
   document.getElementById('tabList').classList.toggle('on',v==='list');
+  document.getElementById('tabStatus').classList.toggle('on',v==='status');
   document.getElementById('settingsBtn').classList.toggle('on',v==='manage');
   document.getElementById('quizView').style.display=v==='quiz'?'':'none';
   document.getElementById('listView').style.display=v==='list'?'':'none';
+  document.getElementById('statusView').style.display=v==='status'?'':'none';
   document.getElementById('manageView').style.display=v==='manage'?'':'none';
   if(v==='quiz'){if(!cur)nextCard();else renderQuiz();}
   else if(v==='list')renderList();
-  else renderStorageInfo();
+  else if(v==='status')renderStatusView();
+  else{renderStorageInfo();renderManageStreak();renderGoalBtns();}
 }
 function resetScope(){
-<<<<<<< HEAD
   let label;
   if(secScope){
     const sec=currentLevelData?.sections.find(s=>s.id===secScope);
     if(sec){const subsecs=currentLevelData.sections.filter(s=>s.subcat===sec.subcat);const idx=subsecs.findIndex(s=>s.id===secScope)+1;label=sec.subcat+' セクション'+idx;}
     else label=secScope;
   }else label=scope==='all'?'ぜんぶ':displaySubcatName(scope);
-=======
-  const label=scope==='all'?'ぜんぶ':(currentLevelData?currentLevelData.sections.find(s=>s.id===scope)?.name||scope:scope);
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
   if(!confirm(label+' の学習記録を0%にもどします。よろしいですか？'))return;
-  scopeWords().forEach(({w})=>{delete state.prog[w.id];});
+  scopeWords().forEach(({w})=>{delete state.prog[w.id];if(state.correctCount)delete state.correctCount[w.id];if(state.wrongCount)delete state.wrongCount[w.id];});
   save();cur=null;queue=[];renderProgress();renderChips();if(view==='quiz')nextCard();
 }
-function resetAllProgress(){if(!confirm('ぜんぶの学習記録を消します。写真は残ります。よろしいですか？'))return;state.prog={};save();renderAll();}
+function resetAllProgress(){if(!confirm('ぜんぶの学習記録を消します。写真は残ります。よろしいですか？'))return;state.prog={};state.correctCount={};state.wrongCount={};save();renderAll();}
 async function deleteAllData(){
   if(!confirm('⚠️ 全データを削除します。\n写真・進捗がすべて削除されます。\n削除すると元に戻せません。\nそれでもよいですか？'))return;
   if(!confirm('本当に削除しますか？\nこの操作は取り消せません。'))return;
   await clearPhotosForPlayer(playerConfig.current);
-  state={levelId:state.levelId||'elem',prog:{}};
+  state=Object.assign(DEFAULT_STATE(),{levelId:state.levelId||'elem'});
   save();renderAll();alert('削除しました。');
 }
-function renderAll(){renderChips();renderProgress();if(view==='quiz'){cur=null;nextCard();}else if(view==='list')renderList();else renderStorageInfo();}
+function renderAll(){renderStreakBadge();renderDailyGoal();renderChips();renderProgress();if(view==='quiz'){cur=null;nextCard();}else if(view==='list')renderList();else renderStorageInfo();}
 
+function renderManageStreak(){
+  const n=effectiveStreak(),best=state.bestStreak||0;
+  const today=localDateStr();
+  const studiedToday=(state.studyDates||[]).includes(today);
+  let msg=n>0?`${n}日連続${studiedToday?' ✅':' （今日まだ）'}`:'まだ記録なし';
+  if(best>0)msg+=`　最長：${best}日`;
+  document.getElementById('manageStreakInfo').textContent=msg;
+}
 function renderStorageInfo(){
   const LIMIT_KB=5*1024;
   const COLORS=['#4A9EFF','#FF6B6B','#6BCB77','#FFD93D','#C77DFF'];
@@ -1373,12 +1598,10 @@ function addPlayerFromModal(){const name=document.getElementById('newPlayerName'
 (async()=>{
   photoCache=await loadPhotosForPlayer(playerConfig.current);
   await migratePhotosIfNeeded();
-<<<<<<< HEAD
   await setLevel(state.levelId||'elem',false);
-=======
-  await setLevel(state.levelId||'elem');
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
   renderPlayerDisplay();
+  renderStreakBadge();
+  renderDailyGoal();
   nextCard();
 })();
 
@@ -1399,7 +1622,6 @@ async function openBattleSetup(){
   for(const p of playerConfig.players){
     const ps=getPS(p.id);
     const levelId=ps.levelId||'elem';
-<<<<<<< HEAD
     const pscope=ps.scope||'all';
     const psecScope=ps.secScope||null;
     const levelData=await loadLevelData(levelId);
@@ -1414,13 +1636,6 @@ async function openBattleSetup(){
       }else{
         bts.selSets[p.id]=[...new Set(levelData.sections.map(s=>s.subcat))];
       }
-=======
-    const levelData=await loadLevelData(levelId);
-    const isNew=!bts.pstates[p.id];
-    bts.pstates[p.id]={levelId,levelData,prog:ps.prog||{}};
-    if(isNew||!bts.selSets[p.id]){
-      bts.selSets[p.id]=levelData?levelData.sections.map(s=>s.id):[];
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
     }
   }
   bts.selPids=bts.selPids.filter(id=>playerConfig.players.some(p=>p.id===id));
@@ -1457,7 +1672,6 @@ function renderBtSetup(){
     if(!levelData||!levelData.sections.length){
       h+=`<div class="bt-set-box"><div class="bt-set-hdr"><span>${esc(p.name)} (${levelLabel})</span><span style="font-size:11px;color:var(--muted)">データなし</span></div></div>`;return;
     }
-<<<<<<< HEAD
     const pscope=ps?.scope||'all';
     const isElem=ps?.levelId==='elem';
     const pFilter=(bts.btFilters&&bts.btFilters[pid])||['all'];
@@ -1520,14 +1734,6 @@ function renderBtSetup(){
         h+=`<label class="bt-chk"><input type="checkbox" ${chk?'checked':''} onchange="btTglSet('${pid}','${sf}',this.checked)"><span>${esc(labels[k])}</span><span style="margin-left:auto;color:var(--muted);font-size:11px">${wcs[k]}語</span></label>`;
       });
     }
-=======
-    const allOn=levelData.sections.every(s=>(bts.selSets[pid]||[]).includes(s.id));
-    h+=`<div class="bt-set-box"><div class="bt-set-hdr"><span>▼ ${esc(p.name)} <span style="font-size:11px;color:var(--muted)">${levelLabel}</span></span><button class="bt-allbtn" onclick="btSelAll('${pid}',${allOn?'false':'true'})">${allOn?'全解除':'全選択'}</button></div><div class="bt-set-rows">`;
-    levelData.sections.forEach(sec=>{
-      const chk=(bts.selSets[pid]||[]).includes(sec.id);
-      h+=`<label class="bt-chk"><input type="checkbox" ${chk?'checked':''} onchange="btTglSet('${pid}','${sec.id}',this.checked)"><span>${esc(sec.name)}</span><span style="margin-left:auto;color:var(--muted);font-size:11px">${sec.words.length}語</span></label>`;
-    });
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
     h+=`</div></div>`;
   });
   h+=`</div>`;
@@ -1553,7 +1759,6 @@ function renderBtSetup(){
 
 function btTglPlayer(id){const i=bts.selPids.indexOf(id);if(i>=0){if(bts.selPids.length>1)bts.selPids.splice(i,1);}else bts.selPids.push(id);renderBtSetup();}
 function btTglSet(pid,sid,on){if(!bts.selSets[pid])bts.selSets[pid]=[];if(on){if(!bts.selSets[pid].includes(sid))bts.selSets[pid].push(sid);}else bts.selSets[pid]=bts.selSets[pid].filter(x=>x!==sid);renderBtSetup();}
-<<<<<<< HEAD
 function btSubcatStatus(pid,subcat,ld){
   const prog=bts.pstates[pid]?.prog||{};
   const words=ld.sections.filter(s=>s.subcat===subcat).flatMap(s=>s.words);
@@ -1602,9 +1807,6 @@ function btSelAll(pid,on){
   bts.selSets[pid]=[...new Set([...(bts.selSets[pid]||[]),...toAdd])];
   renderBtSetup();
 }
-=======
-function btSelAll(pid,on){const ld=bts.pstates[pid]?.levelData;bts.selSets[pid]=on&&ld?ld.sections.map(s=>s.id):[];renderBtSetup();}
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
 function btSetN(n){bts.perPlayer=n;renderBtSetup();}
 function btSetT(t){bts.timeLim=t;renderBtSetup();}
 function btSetOrder(o){bts.order=o;renderBtSetup();}
@@ -1629,14 +1831,9 @@ async function btGo(){
     bts.scores[p.id]=0;
     const {levelData}=bts.pstates[p.id];
     let words=[];
-<<<<<<< HEAD
     const sel=bts.selSets[p.id]||[];
     for(const sec of levelData.sections){
       if(sel.includes(sec.id)||sel.includes(sec.subcat)){
-=======
-    for(const sec of levelData.sections){
-      if((bts.selSets[p.id]||[]).includes(sec.id)){
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
         for(const w of sec.words)words.push({sec,w});
       }
     }
@@ -1681,8 +1878,12 @@ function btStartTurn(){
   document.getElementById('btQTag').textContent=q.sec.name;
   document.getElementById('btQPic').innerHTML=photo?`<img src="${photo}" alt="" onerror="this.src=''">`:
     `<div class="ph"><b>📷</b></div>`;
+  const _btIsElem=q.w.id.split('_')[0]==='elem';
+  _btPartialHintMask=null;
   document.getElementById('btQHintTxt').textContent=q.w.j;
-  document.getElementById('btQHint').classList.add('hidden');
+  document.getElementById('btQHint').classList.toggle('hidden',_btIsElem);
+  document.getElementById('btQPartialHint').style.display='none';
+  document.getElementById('btHintBtn').textContent=_btIsElem?'💬 ヒント（にほんご）':'💬 ヒント（部分表示）';
   const inp=document.getElementById('btAns');
   inp.value='';inp.className='ans';inp.disabled=false;
   document.getElementById('btFb').textContent='';
@@ -1713,17 +1914,28 @@ function btStartTurn(){
 }
 
 function stopBtTimer(){if(bts?.timerIv){clearInterval(bts.timerIv);bts.timerIv=null;}}
-function btToggleHint(){document.getElementById('btQHint').classList.toggle('hidden');}
+function btToggleHint(){
+  if(!bts?.cur)return;
+  if(bts.cur.w.id.split('_')[0]==='elem'){
+    document.getElementById('btQHint').classList.toggle('hidden');
+  }else{
+    const el=document.getElementById('btQPartialHint');
+    if(el.style.display!=='none'){el.style.display='none';return;}
+    if(!_btPartialHintMask)_btPartialHintMask=makeHintMask(bts.cur.w.e);
+    el.textContent=_btPartialHintMask;el.style.display='';
+  }
+}
 function btSpeak(){if(bts?.cur)speak(bts.cur.w.e);}
 
 function btCheck(){
   if(bts.answered)return;
   const inp=document.getElementById('btAns'),v=norm(inp.value);
   if(!v){inp.focus();return;}
+  updateStreak();
   stopBtTimer();stopBtBgm();
   const ok=accepted(bts.cur.w).includes(v);
   bts.answered=true;inp.disabled=true;
-  if(ok){bts.scores[bts.cur.pid]++;inp.classList.add('ok');document.getElementById('btFb').innerHTML=`🎉 せいかい！ <span class="correctword">${esc(bts.cur.w.e)}</span>`;document.getElementById('btFb').style.color='var(--known)';confetti();playCorrect();btShowNext('+1点');}
+  if(ok){bts.scores[bts.cur.pid]++;inp.classList.add('ok');document.getElementById('btFb').innerHTML=`🎉 せいかい！ <span class="correctword">${esc(bts.cur.w.e)}</span>`;document.getElementById('btFb').style.color='var(--known)';confetti();playCorrect();if(bts.cur.pid===playerConfig.current)onDailyCorrect();btShowNext('+1点');}
   else{inp.classList.add('ng');document.getElementById('btFb').innerHTML=`😢 ざんねん！ こたえ → <span class="correctword">${esc(bts.cur.w.e)}</span>`;document.getElementById('btFb').style.color='var(--learn)';document.getElementById('btQHint').classList.remove('hidden');playWrong();btShowNext('+0点');}
 }
 function btReveal(){if(bts.answered)return;stopBtTimer();stopBtBgm();bts.answered=true;document.getElementById('btAns').disabled=true;document.getElementById('btFb').innerHTML=`こたえ → <span class="correctword">${esc(bts.cur.w.e)}</span>`;document.getElementById('btFb').style.color='var(--ink)';btShowNext('+0点');}
@@ -1731,6 +1943,20 @@ function btTimeUp(){if(bts.answered)return;bts.answered=true;stopBtBgm();const i
 function btShowNext(txt){document.getElementById('btAbtn').style.display='none';document.getElementById('btNbtnInner').textContent='つぎへ '+txt+' →';document.getElementById('btNbtn').style.display='flex';}
 function btNext(){bts.turnIdx++;if(bts.turnIdx>=bts.perPlayer*bts.players.length)btShowResult();else btShowCover();}
 
+function btAwardStats(winnerIds){
+  // 参加者全員の対戦回数・勝利数を各自のデータに記録（バッジ条件用）
+  for(const p of bts.players){
+    try{
+      const key='eitango_data_'+p.id;
+      const d=JSON.parse(localStorage.getItem(key)||'{}');
+      d.battleCount=(d.battleCount||0)+1;
+      if(winnerIds.includes(p.id))d.battleWins=(d.battleWins||0)+1;
+      localStorage.setItem(key,JSON.stringify(d));
+      if(p.id===playerConfig.current){state.battleCount=d.battleCount;state.battleWins=d.battleWins;}
+    }catch(e){}
+  }
+  checkBadges();
+}
 function btShowResult(){
   document.getElementById('btQuiz').style.display='none';
   document.getElementById('btCover').style.display='none';
@@ -1743,12 +1969,184 @@ function btShowResult(){
   }).join('');
   const top=bts.scores[sorted[0].id],winners=sorted.filter(p=>bts.scores[p.id]===top);
   document.getElementById('btRWinner').textContent=winners.length>1?'🤝 ひきわけ！':`🎊 ${winners[0].name} の かち！`;
+  btAwardStats(winners.length===1?[winners[0].id]:[]);
   document.getElementById('btResult').style.display='flex';
   if(winners.length>1)playBtDraw();else playBtFanfare();
   confetti();setTimeout(confetti,400);setTimeout(confetti,800);
 }
 
-document.getElementById('btAns').addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();e.stopPropagation();if(bts&&!bts.answered)btCheck();});
+/* ===== ボスチャレンジ ===== */
+let boss=null;
+async function startBoss(levelId,subcat,secId){
+  const data=await loadLevelData(levelId);if(!data)return;
+  let pool=[];
+  for(const sec of data.sections){
+    if(secId?sec.id===secId:sec.subcat===subcat){for(const w of sec.words)pool.push({sec,w});}
+  }
+  if(!pool.length)return;
+  for(let i=pool.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[pool[i],pool[j]]=[pool[j],pool[i]];}
+  boss={key:levelId+'|'+subcat+'|'+(secId||''),levelId,subcat,secId,queue:pool.slice(0,Math.min(10,pool.length)),idx:0,okCount:0,answered:false,timerIv:null,timeLeft:0,missed:[]};
+  document.getElementById('bossResult').style.display='none';
+  document.getElementById('bossBg').style.display='flex';
+  startBtBgm('boss');
+  bossRenderQ();
+}
+function bossStopTimer(){if(boss&&boss.timerIv){clearInterval(boss.timerIv);boss.timerIv=null;}}
+function bossRenderQ(){
+  const q=boss.queue[boss.idx];boss.answered=false;
+  document.getElementById('bossProg').textContent=`${boss.idx+1} / ${boss.queue.length}もん`;
+  document.getElementById('bossTag').textContent=q.sec.name;
+  document.getElementById('bossPic').innerHTML=picHtml(q.w,false);
+  document.getElementById('bossHint').style.display=boss.levelId==='elem'?'none':'';
+  document.getElementById('bossHintTxt').textContent=q.w.j;
+  const inp=document.getElementById('bossAns');
+  inp.value='';inp.className='ans';inp.disabled=false;
+  document.getElementById('bossFb').textContent='';
+  document.getElementById('bossFb').style.color='';
+  document.getElementById('bossAbtn').style.display='flex';
+  document.getElementById('bossNbtn').style.display='none';
+  bossStopTimer();
+  boss.timeLeft=20;
+  const bar=document.getElementById('bossTmBar');
+  bar.style.transition='none';bar.style.width='100%';bar.classList.remove('danger');
+  document.getElementById('bossTmNum').textContent='20秒';
+  setTimeout(()=>{bar.style.transition='width 20s linear';bar.style.width='0%';},50);
+  boss.timerIv=setInterval(()=>{
+    boss.timeLeft--;
+    document.getElementById('bossTmNum').textContent=boss.timeLeft+'秒';
+    if(boss.timeLeft<=3)bar.classList.add('danger');
+    if(boss.timeLeft<=0){bossStopTimer();bossTimeUp();}
+  },1000);
+  setTimeout(()=>inp.focus(),150);
+}
+function bossCheck(){
+  if(!boss||boss.answered)return;
+  const inp=document.getElementById('bossAns'),v=norm(inp.value);
+  if(!v){inp.focus();return;}
+  updateStreak();
+  bossStopTimer();
+  boss.answered=true;inp.disabled=true;
+  const q=boss.queue[boss.idx];
+  const ok=accepted(q.w).includes(v);
+  const fb=document.getElementById('bossFb');
+  if(ok){boss.okCount++;inp.classList.add('ok');fb.innerHTML=`🎉 せいかい！ <span class="correctword">${esc(q.w.e)}</span>`;fb.style.color='var(--known)';confetti();playCorrect();onDailyCorrect();}
+  else{boss.missed.push(q);inp.classList.add('ng');fb.innerHTML=`😢 ざんねん！ こたえ → <span class="correctword">${esc(q.w.e)}</span>`;fb.style.color='var(--learn)';playWrong();}
+  bossShowNext();
+}
+function bossTimeUp(){
+  if(!boss||boss.answered)return;
+  boss.answered=true;
+  const q=boss.queue[boss.idx];
+  boss.missed.push(q);
+  const inp=document.getElementById('bossAns');inp.disabled=true;inp.classList.add('ng');
+  const fb=document.getElementById('bossFb');
+  fb.innerHTML=`⏰ じかんきれ！ こたえ → <span class="correctword">${esc(q.w.e)}</span>`;fb.style.color='var(--learn)';
+  playWrong();bossShowNext();
+}
+function bossShowNext(){
+  document.getElementById('bossAbtn').style.display='none';
+  document.getElementById('bossNbtnInner').textContent=(boss.idx+1>=boss.queue.length)?'けっかを みる →':'つぎへ →';
+  document.getElementById('bossNbtn').style.display='flex';
+}
+function bossNext(){
+  boss.idx++;
+  if(boss.idx>=boss.queue.length)bossEnd();else bossRenderQ();
+}
+function bossEnd(){
+  bossStopTimer();stopBtBgm();
+  document.getElementById('bossBg').style.display='none';
+  const total=boss.queue.length;
+  const pass=boss.okCount>=total;
+  document.getElementById('bossRTitle').textContent=pass?'👑 ボスチャレンジ クリア！':'😢 ざんねん…';
+  document.getElementById('bossRScore').innerHTML=`${boss.okCount} / ${total}もん せいかい<br><span style="font-size:12px;color:var(--muted)">（ぜんもん せいかいで ごうかく）</span>`;
+  document.getElementById('bossRMsg').textContent=pass?'👑 おうかんを ゲット！':'また ちょうせんしてね！';
+  document.getElementById('bossRBtns').innerHTML=pass
+    ?`<button class="btn primary" onclick="bossClose()">やったー！</button>`
+    :`<div style="width:100%">
+        <div style="font-size:14px;font-weight:800;line-height:1.7;margin-bottom:4px;text-align:center">まちがえた ${boss.missed.length}問を れんしゅうしなおす？<br>
+          <span style="font-size:11px;color:var(--muted);font-weight:700">はい：「おぼえた」からもどして れんしゅう<br>いいえ：おぼえたまま キープ</span>
+        </div>
+        <div class="btns">
+          <button class="btn green" onclick="bossCloseRedo(true)">はい</button>
+          <button class="btn ghost" onclick="bossCloseRedo(false)">いいえ</button>
+        </div>
+        <div class="btns"><button class="btn primary" onclick="bossRetry()">👑 もういちど ちょうせん！</button></div>
+      </div>`;
+  document.getElementById('bossResult').style.display='flex';
+  if(pass){
+    if(!state.bossClear)state.bossClear={};
+    state.bossClear[boss.key]=localDateStr();
+    save();
+    playBtFanfare();confetti();setTimeout(confetti,400);setTimeout(confetti,800);
+    checkBadges();
+  }else{playBtDraw();}
+}
+function bossRetry(){const b=boss;document.getElementById('bossResult').style.display='none';startBoss(b.levelId,b.subcat,b.secId);}
+async function bossCloseRedo(redo){
+  document.getElementById('bossResult').style.display='none';
+  const b=boss;boss=null;
+  const missed=(b&&b.missed)?b.missed:[];
+  if(redo&&missed.length){
+    // 「はい」: まちがえた単語を「おぼえた」から戻して、その問題から練習再開
+    for(const m of missed)onWrong(m.w.id);
+    if(!currentLevelData||currentLevelData.levelId!==b.levelId)await setLevel(b.levelId,false);
+    queue=[...missed,...queue];
+    cur=null;answered=false;
+    renderProgress();renderChips();
+    setView('quiz');
+    return;
+  }
+  // 「いいえ」または合格時: おぼえた状態はキープ
+  if(view==='status'){renderStatusView();return;}
+  cur=null;answered=false;
+  renderProgress();renderChips();
+  setView('quiz');
+}
+function bossClose(){bossCloseRedo(false);}
+function bossQuit(){
+  if(!confirm('ボスチャレンジを やめますか？'))return;
+  bossStopTimer();stopBtBgm();
+  document.getElementById('bossBg').style.display='none';boss=null;
+}
+/* 練習画面のボス出現バナー：今の問題のセクションが全語「おぼえた」かつ王冠未獲得なら表示 */
+function bossAvailableForCur(){
+  if(!cur||!cur.sec||!currentLevelData)return null;
+  const lv=currentLevelData.levelId;
+  const subcat=cur.sec.subcat;
+  let key,secId;
+  if(lv==='elem'){
+    if(calcSectionStatus(cur.sec)!=='clear')return null;
+    secId=cur.sec.id;key=`${lv}|${subcat}|${secId}`;
+  }else{
+    const secs=currentLevelData.sections.filter(s=>s.subcat===subcat);
+    for(const s of secs)if(calcSectionStatus(s)!=='clear')return null;
+    secId=null;key=`${lv}|${subcat}|`;
+  }
+  return{levelId:lv,subcat,secId,key,crowned:!!(state.bossClear||{})[key]};
+}
+function renderBossBanner(){
+  const el=document.getElementById('bossBanner');if(!el)return;
+  const a=bossAvailableForCur();
+  if(!a){el.style.display='none';return;}
+  const btn=document.getElementById('bossBannerBtn');
+  const nm=currentLevelData.levelId==='elem'?displaySubcatName(a.subcat):a.subcat;
+  if(a.crowned){btn.textContent=`✅👑 ${nm} クリアずみ（もういちど ちょうせん！）`;btn.classList.add('cleared');}
+  else{btn.textContent=`👑 ${nm} のボスに ちょうせん！`;btn.classList.remove('cleared');}
+  el.style.display='flex';
+}
+function bossFromQuiz(){
+  const a=bossAvailableForCur();
+  if(!a)return;
+  cancelSpeakTimer();
+  startBoss(a.levelId,a.subcat,a.secId);
+}
+document.getElementById('bossAns').addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();e.stopPropagation();_ensureAudioReady();if(boss&&!boss.answered)bossCheck();});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'||!boss)return;
+  if(document.getElementById('bossBg').style.display==='flex'&&boss.answered&&document.getElementById('bossNbtn').style.display!=='none'){e.preventDefault();bossNext();}
+});
+
+document.getElementById('btAns').addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();e.stopPropagation();_ensureAudioReady();if(bts&&!bts.answered)btCheck();});
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter'||!bts)return;
   if(document.getElementById('btCover').style.display==='flex'){e.preventDefault();btStartTurn();return;}
@@ -1757,7 +2155,6 @@ document.addEventListener('keydown',e=>{
 
 /* ===== 対戦 BGM / SE ===== */
 let _btAC=null,_btJob=null,_btNxt=0,_btIdx=0,_btPat=null,_btBpb=0,_btVol=0,_btWave='square',_btPreviewTimer=null;
-<<<<<<< HEAD
 let _sfxAC=null;
 function _getSfxCtx(){
   if(!_sfxAC||_sfxAC.state==='closed'||_sfxAC.state==='interrupted'){
@@ -1773,9 +2170,16 @@ function _btACtx(){
   if(_btAC.state==='suspended')_btAC.resume();
   return _btAC;
 }
-=======
-function _btACtx(){if(!_btAC||_btAC.state==='closed')_btAC=new(window.AudioContext||window.webkitAudioContext)();if(_btAC.state==='suspended')_btAC.resume();return _btAC;}
->>>>>>> f8a3019 (v20: 事前登録制リファクタリング（レベル選択・セクション・data/json・img/elem）)
+/* iOS Web Audio アンロック：初回タッチ時に AudioContext を生成して silent buffer で解除 */
+let _audioReady=false;
+function _ensureAudioReady(){
+  if(_audioReady)return;_audioReady=true;
+  const unlock=ctx=>{try{const b=ctx.createBuffer(1,1,ctx.sampleRate),s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start(0);if(ctx.state!=='running')ctx.resume();}catch(e){}};
+  try{if(!_sfxAC||_sfxAC.state==='closed')_sfxAC=new(window.AudioContext||window.webkitAudioContext)();unlock(_sfxAC);}catch(e){}
+  try{if(!_btAC||_btAC.state==='closed')_btAC=new(window.AudioContext||window.webkitAudioContext)();unlock(_btAC);}catch(e){}
+}
+document.addEventListener('touchstart',_ensureAudioReady,{once:true,passive:true});
+document.addEventListener('mousedown',_ensureAudioReady,{once:true});
 function stopBtBgm(){if(_btJob){clearInterval(_btJob);_btJob=null;}_btPat=null;}
 function _btSched(){
   if(!_btPat)return;
@@ -1804,15 +2208,19 @@ function startBtBgm(type){
   stopBtBgm();
   try{
     const ctx=_btACtx();
-    if(type==='quiz'){if(!bts||bts.bgm==='off')return;const p=BT_BGM_PATTERNS[bts.bgm];if(!p)return;_btBpb=p.bpb;_btVol=p.vol;_btWave=p.wave;_btPat=p.pat;}
-    else{_btBpb=60/110;_btVol=0.065;_btWave='triangle';_btPat=[[523,1],[659,1],[784,1],[659,1],[523,1],[440,1],[392,1],[329,1],[349,1],[440,1],[523,1],[440,1],[392,1],[329,1],[261,1],[0,1]];}
-    _btIdx=0;_btNxt=ctx.currentTime+0.05;
-    _btSched();_btJob=setInterval(_btSched,100);
+    const _start=()=>{
+      if(type==='quiz'){if(!bts||bts.bgm==='off')return;const p=BT_BGM_PATTERNS[bts.bgm];if(!p)return;_btBpb=p.bpb;_btVol=p.vol;_btWave=p.wave;_btPat=p.pat;}
+      else if(type==='boss'){const p=BT_BGM_PATTERNS.fight;_btBpb=p.bpb;_btVol=p.vol;_btWave=p.wave;_btPat=p.pat;}
+      else{_btBpb=60/110;_btVol=0.065;_btWave='triangle';_btPat=[[523,1],[659,1],[784,1],[659,1],[523,1],[440,1],[392,1],[329,1],[349,1],[440,1],[523,1],[440,1],[392,1],[329,1],[261,1],[0,1]];}
+      _btIdx=0;_btNxt=ctx.currentTime+0.05;
+      _btSched();_btJob=setInterval(_btSched,100);
+    };
+    if(ctx.state==='running')_start();else ctx.resume().then(_start).catch(()=>{});
   }catch(e){}
 }
-function playBtReady(){try{const ctx=_btACtx(),t=ctx.currentTime+0.05;[[392,0,0.07],[523,0.08,0.07],[659,0.16,0.07],[784,0.24,0.28]].forEach(([f,s,d])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0.14,t+s);g.gain.exponentialRampToValueAtTime(0.001,t+s+d);o.start(t+s);o.stop(t+s+d+0.02);});}catch(e){}}
-function playBtFanfare(){stopBtBgm();try{const ctx=_btACtx(),t=ctx.currentTime+0.05;[[261,0.00,0.06],[329,0.06,0.06],[392,0.12,0.06],[523,0.18,0.06],[261,0.24,1.8],[329,0.24,1.8],[392,0.24,1.8],[523,0.24,1.8],[659,0.24,1.8],[784,0.45,0.13],[1047,0.58,0.13],[784,0.71,0.13],[1047,0.84,0.90]].forEach(([f,s,d])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(f>600?0.10:0.18,t+s);g.gain.exponentialRampToValueAtTime(0.001,t+s+d);o.start(t+s);o.stop(t+s+d+0.02);});}catch(e){}}
-function playBtDraw(){stopBtBgm();try{const ctx=_btACtx(),t=ctx.currentTime+0.05;[[523,0.00,0.12],[493,0.13,0.12],[440,0.26,0.12],[415,0.39,0.12],[392,0.52,0.55],[523,0.65,0.08],[493,0.73,0.08],[440,0.81,0.08],[415,0.89,0.08],[392,0.97,0.50]].forEach(([f,s,d])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0.16,t+s);g.gain.exponentialRampToValueAtTime(0.001,t+s+d);o.start(t+s);o.stop(t+s+d+0.02);});}catch(e){}}
+function playBtReady(){try{const ctx=_btACtx();const _go=()=>{const t=ctx.currentTime+0.05;[[392,0,0.07],[523,0.08,0.07],[659,0.16,0.07],[784,0.24,0.28]].forEach(([f,s,d])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0.14,t+s);g.gain.exponentialRampToValueAtTime(0.001,t+s+d);o.start(t+s);o.stop(t+s+d+0.02);});};if(ctx.state==='running')_go();else ctx.resume().then(_go).catch(()=>{});}catch(e){}}
+function playBtFanfare(){stopBtBgm();try{const ctx=_btACtx();const _go=()=>{const t=ctx.currentTime+0.05;[[261,0.00,0.06],[329,0.06,0.06],[392,0.12,0.06],[523,0.18,0.06],[261,0.24,1.8],[329,0.24,1.8],[392,0.24,1.8],[523,0.24,1.8],[659,0.24,1.8],[784,0.45,0.13],[1047,0.58,0.13],[784,0.71,0.13],[1047,0.84,0.90]].forEach(([f,s,d])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(f>600?0.10:0.18,t+s);g.gain.exponentialRampToValueAtTime(0.001,t+s+d);o.start(t+s);o.stop(t+s+d+0.02);});};if(ctx.state==='running')_go();else ctx.resume().then(_go).catch(()=>{});}catch(e){}}
+function playBtDraw(){stopBtBgm();try{const ctx=_btACtx();const _go=()=>{const t=ctx.currentTime+0.05;[[523,0.00,0.12],[493,0.13,0.12],[440,0.26,0.12],[415,0.39,0.12],[392,0.52,0.55],[523,0.65,0.08],[493,0.73,0.08],[440,0.81,0.08],[415,0.89,0.08],[392,0.97,0.50]].forEach(([f,s,d])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0.16,t+s);g.gain.exponentialRampToValueAtTime(0.001,t+s+d);o.start(t+s);o.stop(t+s+d+0.02);});};if(ctx.state==='running')_go();else ctx.resume().then(_go).catch(()=>{});}catch(e){}}
 
 function confetti(){const cs=['#ff8a3d','#3bb273','#4aa3df','#ffd23f','#ff6b6b'];for(let i=0;i<16;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=cs[i%cs.length];c.style.animation='fall '+(0.9+Math.random()*0.7)+'s ease-in '+Math.random()*0.2+'s forwards';document.body.appendChild(c);setTimeout(()=>c.remove(),2000);}}
 </script>
