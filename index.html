@@ -829,15 +829,32 @@ function renderBadges(){
 }
 
 /* ===== レベル ===== */
+const _levelLoading={};
 async function loadLevelData(levelId){
   if(levelCache[levelId])return levelCache[levelId];
-  try{
-    const r=await fetch('data/'+levelId+'.json');
-    if(!r.ok)throw new Error(r.status);
-    const data=await r.json();
-    levelCache[levelId]=data;
-    return data;
-  }catch(e){console.error('Failed to load level',levelId,e);return null;}
+  if(_levelLoading[levelId])return _levelLoading[levelId];  // 同時リクエストは1本にまとめる
+  const p=(async()=>{
+    try{
+      const r=await fetch('data/'+levelId+'.json');
+      if(!r.ok)throw new Error(r.status);
+      const data=await r.json();
+      levelCache[levelId]=data;
+      return data;
+    }catch(e){console.error('Failed to load level',levelId,e);return null;}
+    finally{delete _levelLoading[levelId];}
+  })();
+  _levelLoading[levelId]=p;
+  return p;
+}
+let _prefetchStarted=false;
+function prefetchLevels(){
+  // レベル選択モーダルを開いた時点で全レベルを軽い順に裏読み（選択時の待ちを減らす）
+  if(_prefetchStarted)return;_prefetchStarted=true;
+  (async()=>{
+    for(const lv of ['elem','high','other','junior','eiken']){
+      if(!levelCache[lv]){try{await loadLevelData(lv);}catch(e){}}
+    }
+  })();
 }
 async function setLevel(levelId,resetScope=true){
   const data=await loadLevelData(levelId);
@@ -872,6 +889,7 @@ function openLevelModal(){
   _lvStep='level';_lvLevelId=null;
   renderLevelModal();
   document.getElementById('levelModalBg').style.display='flex';
+  prefetchLevels();
 }
 function renderLevelModal(){
   const lid=currentLevelData?.levelId||(state.levelId||'elem');
@@ -904,9 +922,21 @@ function renderLevelModal(){
     document.getElementById('levelList').innerHTML=h;
   }
 }
+let _lvLoadToken=0;
 async function lvPickLevel(levelId){
+  const tok=++_lvLoadToken;
+  if(!levelCache[levelId]){
+    // 未読み込みならスピナーを即表示（データが大きいレベルは数秒かかる）
+    const lv=LEVELS.find(l=>l.id===levelId);
+    document.getElementById('levelList').innerHTML=`<div style="text-align:center;padding:40px 0;font-weight:800;color:var(--muted)"><span class="spin"></span> ${lv?lv.label:''} を よみこみちゅう…</div>`;
+  }
   const data=await loadLevelData(levelId);
-  if(!data)return;
+  if(tok!==_lvLoadToken)return;  // 読み込み中に閉じた/別のレベルを選んだ
+  if(!data){
+    renderLevelModal();
+    alert('データの よみこみに しっぱいしました。\nでんぱの いいところで もういちど ためしてね。');
+    return;
+  }
   if(levelId==='elem'){
     closeLevelModal();
     await setLevel('elem');
@@ -923,8 +953,8 @@ async function lvSelectSubcat(subcat){
   selectScope(subcat);
   answered=false;
 }
-function lvBack(){_lvStep='level';renderLevelModal();}
-function closeLevelModal(){document.getElementById('levelModalBg').style.display='none';}
+function lvBack(){_lvLoadToken++;_lvStep='level';renderLevelModal();}
+function closeLevelModal(){_lvLoadToken++;document.getElementById('levelModalBg').style.display='none';}
 
 /* ===== スコープ・単語 ===== */
 let view='quiz',secFilter=['all'],queue=[],cur=null,answered=false;
