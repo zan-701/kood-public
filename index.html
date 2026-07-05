@@ -536,6 +536,10 @@
       <div style="font-size:11px;color:var(--accent-d);font-weight:800">→ プレイヤーを かんりする</div>
     </div>
     <div class="panel">
+      <h3>☁️ かぞく共有</h3>
+      <div id="sharePanelBody">読み込み中…</div>
+    </div>
+    <div class="panel">
       <h3>📊 ストレージ使用量</h3>
       <div id="storageInfo">読み込み中…</div>
     </div>
@@ -563,6 +567,54 @@
       <p>覚えた／まだ の記録を消します。実績（ストリーク・バッジ・カード・王冠）も消すかどうかは、次の画面で選べます。</p>
       <button class="minibtn" style="width:100%;color:var(--learn);border-color:var(--learn)" onclick="resetAllProgress()">学習記録を リセット</button>
     </div>
+  </div>
+</div>
+
+<!-- Firebase セットアップ手順モーダル -->
+<div id="shareGuideBg" style="display:none;position:fixed;inset:0;background:rgba(58,46,38,.5);z-index:130;align-items:center;justify-content:center;padding:16px">
+  <div style="background:var(--bg);width:100%;max-width:440px;max-height:88vh;overflow-y:auto;border-radius:20px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.3)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-size:17px;font-weight:800">☁️ かぞく共有の 初期設定</div>
+      <button class="bt-close" onclick="closeShareGuide()">✕</button>
+    </div>
+    <p style="font-size:12.5px;color:var(--muted);font-weight:700;line-height:1.7;margin:0 0 12px">保護者が1回だけ行う設定です。無料のFirebase（Google）を使います。所要 約10分。</p>
+    <ol style="font-size:13px;line-height:1.9;font-weight:700;color:var(--ink);padding-left:20px;margin:0 0 14px">
+      <li><b>Firebaseプロジェクトを作る</b><br><span style="font-size:11.5px;color:var(--muted)"><a href="https://console.firebase.google.com/" target="_blank" rel="noopener" style="color:var(--accent-d);font-weight:800">🔗 console.firebase.google.com をひらく</a> → 「プロジェクトを追加」→ 名前を入力 → Googleアナリティクスはオフでよい → 作成</span></li>
+      <li><b>Realtime Database を作る</b><br><span style="font-size:11.5px;color:var(--muted)">左メニュー「構築」→「Realtime Database」→「データベースを作成」→ ロケーション選択 →「ロックモードで開始」</span></li>
+      <li><b>ルールを貼り付ける</b><br><span style="font-size:11.5px;color:var(--muted)">「ルール」タブに下のJSONを貼り付けて「公開」</span></li>
+    </ol>
+    <pre style="background:#2b2b2b;color:#e8e8e8;font-size:11px;border-radius:10px;padding:12px;overflow-x:auto;margin:0 0 14px;line-height:1.5">{
+  "rules": {
+    "families": {
+      "$code": {
+        ".read": "$code.length >= 12",
+        ".write": "$code.length >= 12"
+      }
+    }
+  }
+}</pre>
+    <ol start="4" style="font-size:13px;line-height:1.9;font-weight:700;color:var(--ink);padding-left:20px;margin:0 0 14px">
+      <li><b>Webアプリを追加して設定をコピー</b><br><span style="font-size:11.5px;color:var(--muted)">プロジェクト設定（⚙️）→「マイアプリ」→ Webアイコン（&lt;/&gt;）→ アプリ名を入力して登録<br><b style="color:var(--accent-d)">「npm / &lt;script&gt;」の選択画面が出ても無視でOK（npm install も不要）。</b> 表示される <code>const firebaseConfig = {…}</code> を コピー（<code>databaseURL</code> の行が最重要）。画面下の「コンソールに進む」は押してOK</span></li>
+      <li><b>アプリに貼り付けて 家族をつくる</b><br><span style="font-size:11.5px;color:var(--muted)">この画面をとじて「🆕 自分のFirebaseで 家族をつくる」を開き、コピーした <code>firebaseConfig</code> を貼り付けて「家族をつくる」→ <b>招待コード</b>が発行されます。それを家族に送るだけ（index.html の編集は不要）</span></li>
+    </ol>
+    <p style="font-size:11px;color:var(--muted);font-weight:700;line-height:1.7;margin:0 0 14px;border-top:1px solid var(--line);padding-top:10px">※ 家族ごとに それぞれの Firebase で動きます（あなたのデータが 友達家族と混ざりません）。保存されるのはニックネームと学習の進み具合だけで、個人情報は含まれません。</p>
+    <button class="btn primary" style="width:100%" onclick="closeShareGuide()">とじる</button>
+  </div>
+</div>
+
+<!-- 自分のFirebaseで家族をつくる（config貼り付け）モーダル -->
+<div id="shareSetupBg" style="display:none;position:fixed;inset:0;background:rgba(58,46,38,.5);z-index:120;align-items:center;justify-content:center;padding:16px">
+  <div style="background:var(--bg);width:100%;max-width:440px;max-height:88vh;overflow-y:auto;border-radius:20px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.3)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-size:17px;font-weight:800">🆕 自分のFirebaseで 家族をつくる</div>
+      <button class="bt-close" onclick="closeShareSetup()">✕</button>
+    </div>
+    <p style="font-size:12.5px;color:var(--muted);font-weight:700;line-height:1.7;margin:0 0 10px">保護者が自分のFirebaseを用意し、その <code>firebaseConfig</code> を下に貼り付けてください。<br>あなたの家族のデータは <b>あなたのFirebase</b> に保存されます（友達家族とは分かれます）。</p>
+    <button class="minibtn" style="width:100%;margin-bottom:10px" onclick="openShareGuide()">📖 Firebaseの 初期設定の手順をみる</button>
+    <label class="lbl" style="margin-top:0">firebaseConfig を貼り付け</label>
+    <textarea id="fbConfigInput" class="tf" style="font-size:12px;padding:10px 12px;height:150px;resize:vertical;font-family:monospace" placeholder="const firebaseConfig = {&#10;  apiKey: &quot;...&quot;,&#10;  databaseURL: &quot;https://....firebaseio.com&quot;,&#10;  ...&#10;};"></textarea>
+    <p style="font-size:11px;color:var(--muted);font-weight:700;line-height:1.6;margin:8px 0 14px">※ <code>const firebaseConfig = {…}</code> をそのまま貼り付けてOK。<b>apiKey</b> と <b>databaseURL</b> が含まれていれば読み取れます。</p>
+    <div class="btns"><button class="btn ghost" onclick="closeShareSetup()">とじる</button><button class="btn primary" onclick="shareCreateWithConfig()">🆕 家族をつくる</button></div>
   </div>
 </div>
 
@@ -737,11 +789,24 @@ const LEVELS=[
 const levelCache={};
 let currentLevelData=null;
 
+/* ===== かぞく共有: Firebase設定 =====
+   設定は各端末ごとに保存する（招待コードで受け取る or 保護者が直接貼り付け）。
+   これにより「家族ごとに別々のFirebase」で動く（あなたのFirebaseが友達家族と共有されない）。
+   下の FIREBASE_CONFIG は任意のフォールバック（通常は空でよい）。 */
+const FIREBASE_CONFIG={apiKey:"",authDomain:"",databaseURL:"",projectId:"",storageBucket:"",messagingSenderId:"",appId:""};
+function effectiveConfig(){
+  try{if(typeof _share!=='undefined'&&_share&&_share.fb&&_share.fb.apiKey&&_share.fb.databaseURL)return _share.fb;}catch(e){}
+  if(FIREBASE_CONFIG.apiKey&&FIREBASE_CONFIG.databaseURL)return FIREBASE_CONFIG;
+  return null;
+}
+function firebaseReady(){return!!effectiveConfig();}
+
 /* ===== プレイヤー管理 ===== */
 const PLAYERS_KEY='eitango_players';
 let playerConfig={current:'p1',players:[]};
+var _applyingRemote=false;  // かぞく共有: リモート適用中はクラウドへ再送しない
 function dataKey(){return'eitango_data_'+playerConfig.current;}
-function savePlayerConfig(){localStorage.setItem(PLAYERS_KEY,JSON.stringify(playerConfig));}
+function savePlayerConfig(){localStorage.setItem(PLAYERS_KEY,JSON.stringify(playerConfig));if(typeof schedulePushConfig==='function'&&!_applyingRemote)schedulePushConfig();}
 function initPlayers(){
   try{const raw=localStorage.getItem(PLAYERS_KEY);if(raw){playerConfig=JSON.parse(raw);return;}}catch(e){}
   playerConfig={current:'p1',players:[{id:'p1',name:'プレイヤー1'}]};
@@ -764,8 +829,9 @@ function addPlayer(name){
   if(playerConfig.players.length>=5){alert('プレイヤーは5人までです');return;}
   const id='p'+Date.now();
   playerConfig.players.push({id,name});
-  localStorage.setItem('eitango_data_'+id,JSON.stringify({levelId:'elem',prog:{}}));
+  localStorage.setItem('eitango_data_'+id,JSON.stringify(DEFAULT_STATE()));
   savePlayerConfig();renderPlayerModal();
+  if(typeof schedulePush==='function')schedulePush(id);  // 新プレイヤーをクラウドへ
 }
 async function deletePlayer(id){
   if(playerConfig.players.length<=1){alert('さいごのプレイヤーは削除できません');return;}
@@ -780,6 +846,7 @@ async function deletePlayer(id){
     renderStreakBadge();
   }
   savePlayerConfig();renderPlayerModal();renderPlayerDisplay();
+  if(typeof removeRemotePlayer==='function')removeRemotePlayer(id);  // クラウドからも削除
 }
 function renamePlayer(id){
   const p=playerConfig.players.find(x=>x.id===id);if(!p)return;
@@ -791,7 +858,10 @@ function renamePlayer(id){
 /* ===== ストレージ ===== */
 let state=null;
 let scope='all',secScope=null;
-function DEFAULT_STATE(){return{levelId:'elem',prog:{},streak:0,bestStreak:0,lastStudy:null,studyDates:[],correctCount:{},wrongCount:{},dailyCounts:{},dailyGoal:10,goalDates:[],goalCount:0,badges:{},bossClear:{},dogCards:{},totalCorrect:0,battleCount:0,battleWins:0,anySectionClear:false,skin:'std',sfx:true,autoSpeak:true,speakRate:'normal',knownNeed:2,reviewAmt:'few',bossTime:20,fontSize:'normal'};}
+function DEFAULT_STATE(){return{levelId:'elem',prog:{},streak:0,bestStreak:0,lastStudy:null,studyDates:[],correctCount:{},wrongCount:{},dailyCounts:{},dailyGoal:10,goalDates:[],goalCount:0,badges:{},bossClear:{},dogCards:{},totalCorrect:0,battleCount:0,battleWins:0,anySectionClear:false,skin:'std',sfx:true,autoSpeak:true,speakRate:'normal',knownNeed:2,reviewAmt:'few',bossTime:20,fontSize:'normal',settingsAt:0,resetAt:0};}
+// かぞく共有のマージで「設定」として扱うフィールド（settingsAtが新しい側を一括採用）
+const SETTINGS_KEYS=['levelId','skin','sfx','autoSpeak','speakRate','knownNeed','reviewAmt','bossTime','fontSize','dailyGoal'];
+function touchSettings(){state.settingsAt=Date.now();}
 function load(){
   try{
     const r=localStorage.getItem(dataKey());
@@ -810,6 +880,7 @@ function load(){
 function save(){
   try{localStorage.setItem(dataKey(),JSON.stringify({...state,scope,secScope}));}
   catch(e){alert('ほぞんできませんでした。バックアップを取ってください。');}
+  if(typeof schedulePush==='function'&&!_applyingRemote)schedulePush(playerConfig.current);
 }
 initPlayers();load();
 
@@ -905,7 +976,7 @@ function renderGoalBtns(){
   const g=state.dailyGoal||10;
   document.getElementById('goalBtns').innerHTML=[5,10,20,30].map(n=>`<button class="bt-tgl ${g===n?'on':''}" onclick="setDailyGoal(${n})">${n}もん</button>`).join('');
 }
-function setDailyGoal(n){state.dailyGoal=n;save();renderGoalBtns();renderDailyGoal();}
+function setDailyGoal(n){state.dailyGoal=n;touchSettings();save();renderGoalBtns();renderDailyGoal();}
 
 /* ===== アプリ設定 ===== */
 function applySkin(){
@@ -930,14 +1001,14 @@ function renderSettings(){
   _tglRow('bossTimeBtns',[{v:10,l:'10秒'},{v:20,l:'20秒'},{v:30,l:'30秒'},{v:0,l:'なし'}],(state.bossTime===undefined||state.bossTime===null)?20:state.bossTime,'setBossTime');
   _tglRow('fontBtns',[{v:'normal',l:'ふつう'},{v:'big',l:'大きめ'}],state.fontSize||'normal','setFontSize');
 }
-function setSkin(v){state.skin=v;save();applySkin();renderSettings();}
-function setSfx(v){state.sfx=v;save();renderSettings();if(v)playCorrect();}
-function setAutoSpeak(v){state.autoSpeak=v;save();renderSettings();}
-function setRate(v){state.speakRate=v;save();renderSettings();speak('good morning');}
-function setKnownNeed(v){state.knownNeed=v;save();renderSettings();}
-function setReviewAmt(v){state.reviewAmt=v;save();queue=[];renderSettings();}
-function setBossTime(v){state.bossTime=v;save();renderSettings();}
-function setFontSize(v){state.fontSize=v;save();applySkin();renderSettings();}
+function setSkin(v){state.skin=v;touchSettings();save();applySkin();renderSettings();}
+function setSfx(v){state.sfx=v;touchSettings();save();renderSettings();if(v)playCorrect();}
+function setAutoSpeak(v){state.autoSpeak=v;touchSettings();save();renderSettings();}
+function setRate(v){state.speakRate=v;touchSettings();save();renderSettings();speak('good morning');}
+function setKnownNeed(v){state.knownNeed=v;touchSettings();save();renderSettings();}
+function setReviewAmt(v){state.reviewAmt=v;touchSettings();save();queue=[];renderSettings();}
+function setBossTime(v){state.bossTime=v;touchSettings();save();renderSettings();}
+function setFontSize(v){state.fontSize=v;touchSettings();save();applySkin();renderSettings();}
 
 /* ===== バッジ（実績） ===== */
 function knownCount(){let n=0;for(const v of Object.values(state.prog))if(v==='known')n++;return n;}
@@ -1020,7 +1091,7 @@ async function setLevel(levelId,resetScope=true){
   const data=await loadLevelData(levelId);
   if(!data)return;
   currentLevelData=data;
-  state.levelId=levelId;
+  if(state.levelId!==levelId){state.levelId=levelId;touchSettings();}
   normalizeBossClear(data);
   if(resetScope){scope='all';secScope=null;secFilter=['all'];}
   else{
@@ -1742,7 +1813,7 @@ function setView(v){
   else if(v==='list')renderList();
   else if(v==='status')renderStatusView();
   else if(v==='collection')renderCollection();
-  else{renderStorageInfo();renderGoalBtns();renderSettings();}
+  else{renderStorageInfo();renderGoalBtns();renderSettings();renderSharePanel();}
 }
 function toggleSettings(){setView(view==='manage'?'quiz':'manage');}
 function resetScope(){
@@ -1763,13 +1834,15 @@ function resetAllProgress(){
     const d=DEFAULT_STATE();
     for(const k of ['streak','bestStreak','lastStudy','studyDates','dailyCounts','goalDates','goalCount','badges','bossClear','dogCards','totalCorrect','battleCount','battleWins','anySectionClear'])state[k]=d[k];
   }
+  state.resetAt=Date.now();  // 共有マージで「意図した巻き戻し」として伝播させる
   save();renderAll();
 }
 function resetSettings(){
   if(!confirm('設定を すべて初期値にもどします。よろしいですか？\n（学習記録・実績は消えません）'))return;
   const d=DEFAULT_STATE();
-  for(const k of ['skin','sfx','autoSpeak','speakRate','knownNeed','reviewAmt','bossTime','fontSize','dailyGoal'])state[k]=d[k];
+  for(const k of SETTINGS_KEYS)if(k!=='levelId')state[k]=d[k];
   queue=[];
+  touchSettings();
   save();applySkin();renderSettings();renderGoalBtns();renderDailyGoal();
   showToast('⚙️ 設定を初期値に もどしました');
 }
@@ -2657,6 +2730,337 @@ function playBtFanfare(){stopBtBgm();if(state&&state.sfx===false)return;try{cons
 function playBtDraw(){stopBtBgm();if(state&&state.sfx===false)return;try{const ctx=_btACtx();const _go=()=>{const t=ctx.currentTime+0.05;[[523,0.00,0.12],[493,0.13,0.12],[440,0.26,0.12],[415,0.39,0.12],[392,0.52,0.55],[523,0.65,0.08],[493,0.73,0.08],[440,0.81,0.08],[415,0.89,0.08],[392,0.97,0.50]].forEach(([f,s,d])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0.16,t+s);g.gain.exponentialRampToValueAtTime(0.001,t+s+d);o.start(t+s);o.stop(t+s+d+0.02);});};if(ctx.state==='running')_go();else ctx.resume().then(_go).catch(()=>{});}catch(e){}}
 
 function confetti(){const cs=['#ff8a3d','#3bb273','#4aa3df','#ffd23f','#ff6b6b'];for(let i=0;i<16;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=cs[i%cs.length];c.style.animation='fall '+(0.9+Math.random()*0.7)+'s ease-in '+Math.random()*0.2+'s forwards';document.body.appendChild(c);setTimeout(()=>c.remove(),2000);}}
+
+/* ===== かぞく共有（Firebase Realtime Database リアルタイム同期） =====
+   スタンドアローン時（共有OFF）はSDKをロードせず、従来と完全に同一動作。
+   同期の適用は常に mergePlayerState（単調マージ）を通すため進捗は巻き戻らない。
+   ※ FIREBASE_CONFIG / firebaseReady はスクリプト冒頭（LEVELS付近）で定義済み。 */
+const SHARE_KEY='eitango_share';
+var _share=(()=>{
+  try{const r=JSON.parse(localStorage.getItem(SHARE_KEY)||'null');if(r&&r.deviceId)return r;}catch(e){}
+  return{on:false,code:'',deviceId:'dev_'+Math.random().toString(36).slice(2,10)+Date.now().toString(36)};
+})();
+function saveShare(){localStorage.setItem(SHARE_KEY,JSON.stringify(_share));}
+saveShare();
+var _db=null,_fbLoaded=false,_shareConnected=false,_lastSyncAt=null,_cfgPushTimer=null;
+var _pushTimers={};
+
+function canonJson(o){
+  if(o===null||typeof o!=='object')return JSON.stringify(o);
+  if(Array.isArray(o))return'['+o.map(canonJson).join(',')+']';
+  return'{'+Object.keys(o).sort().map(k=>JSON.stringify(k)+':'+canonJson(o[k])).join(',')+'}';
+}
+function normState(s){const t=Object.assign(DEFAULT_STATE(),s||{});delete t.scope;delete t.secScope;delete t.photos;return t;}
+
+/* 単調マージ: どちらで勉強しても進捗が巻き戻らない（max・和集合ベース）。
+   リセットは resetAt が新しい側を「意図した巻き戻し」として尊重。設定は settingsAt が新しい側。 */
+function mergePlayerState(a,b){
+  a=normState(a);b=normState(b);
+  const m=DEFAULT_STATE();
+  const rank=s=>s==='known'?2:s==='learn'?1:0;
+  const ra=a.resetAt||0,rb=b.resetAt||0;
+  if(ra!==rb){
+    const L=ra>rb?a:b;
+    for(const k of ['prog','correctCount','wrongCount','streak','bestStreak','lastStudy','studyDates','dailyCounts','goalDates','goalCount','badges','bossClear','dogCards','totalCorrect','battleCount','battleWins','anySectionClear','resetAt']){
+      m[k]=JSON.parse(JSON.stringify(L[k]===undefined?m[k]:L[k]));
+    }
+  }else{
+    m.resetAt=ra;
+    m.prog={};
+    for(const id of new Set([...Object.keys(a.prog),...Object.keys(b.prog)])){
+      const s=rank(a.prog[id])>=rank(b.prog[id])?a.prog[id]:b.prog[id];
+      if(s)m.prog[id]=s;
+    }
+    m.correctCount={};
+    for(const id of new Set([...Object.keys(a.correctCount),...Object.keys(b.correctCount)]))m.correctCount[id]=Math.max(a.correctCount[id]||0,b.correctCount[id]||0);
+    m.wrongCount={};
+    for(const id of new Set([...Object.keys(a.wrongCount),...Object.keys(b.wrongCount)]))m.wrongCount[id]=Math.max(a.wrongCount[id]||0,b.wrongCount[id]||0);
+    m.streak=Math.max(a.streak||0,b.streak||0);
+    m.bestStreak=Math.max(a.bestStreak||0,b.bestStreak||0);
+    m.lastStudy=[a.lastStudy,b.lastStudy].filter(Boolean).sort().pop()||null;
+    m.studyDates=[...new Set([...(a.studyDates||[]),...(b.studyDates||[])])].sort();
+    m.dailyCounts={};
+    for(const d of new Set([...Object.keys(a.dailyCounts||{}),...Object.keys(b.dailyCounts||{})]))m.dailyCounts[d]=Math.max(a.dailyCounts[d]||0,b.dailyCounts[d]||0);
+    m.goalDates=[...new Set([...(a.goalDates||[]),...(b.goalDates||[])])].sort();
+    m.goalCount=Math.max(a.goalCount||0,b.goalCount||0);
+    m.badges={};
+    for(const k of new Set([...Object.keys(a.badges||{}),...Object.keys(b.badges||{})])){
+      const da=(a.badges||{})[k],db2=(b.badges||{})[k];
+      m.badges[k]=(da&&db2)?(da<db2?da:db2):(da||db2);
+    }
+    m.bossClear=Object.assign({},a.bossClear||{},b.bossClear||{});
+    m.dogCards={};
+    for(const lv of new Set([...Object.keys(a.dogCards||{}),...Object.keys(b.dogCards||{})]))m.dogCards[lv]=Object.assign({},(a.dogCards||{})[lv]||{},(b.dogCards||{})[lv]||{});
+    m.totalCorrect=Math.max(a.totalCorrect||0,b.totalCorrect||0);
+    m.battleCount=Math.max(a.battleCount||0,b.battleCount||0);
+    m.battleWins=Math.max(a.battleWins||0,b.battleWins||0);
+    m.anySectionClear=!!(a.anySectionClear||b.anySectionClear);
+  }
+  const S=(b.settingsAt||0)>(a.settingsAt||0)?b:a;
+  for(const k of SETTINGS_KEYS)m[k]=S[k];
+  m.settingsAt=Math.max(a.settingsAt||0,b.settingsAt||0);
+  return m;
+}
+
+function _injectScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('SDK load failed'));document.head.appendChild(s);});}
+async function loadFirebaseSdk(){
+  if(_fbLoaded)return;
+  await _injectScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js');
+  await _injectScript('https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js');
+  _fbLoaded=true;
+}
+async function _connectDb(){
+  await loadFirebaseSdk();
+  const cfg=effectiveConfig();
+  if(!cfg)throw new Error('Firebaseが設定されていません');
+  // すでに別のFirebase（別の家族）に接続済みなら作り直す
+  if(firebase.apps.length){
+    try{if(firebase.app().options.databaseURL!==cfg.databaseURL){await firebase.app().delete();}}catch(e){}
+  }
+  if(!firebase.apps.length)firebase.initializeApp(cfg);
+  _db=firebase.database();
+}
+function _famRef(){return _db.ref('families/'+_share.code);}
+
+async function startSync(){
+  if(!_share.on||!firebaseReady())return;
+  try{
+    await _connectDb();
+    const fam=_famRef();
+    fam.child('players').on('child_added',s=>onRemotePlayer(s.key,s.val()));
+    fam.child('players').on('child_changed',s=>onRemotePlayer(s.key,s.val()));
+    fam.child('config').on('value',s=>onRemoteConfig(s.val()));
+    _db.ref('.info/connected').on('value',s=>{_shareConnected=!!s.val();renderSharePanel();});
+  }catch(e){console.error('startSync failed',e);showToast('☁️ 共有の接続に しっぱいしました');}
+}
+function stopSync(){
+  try{if(_db){_famRef().child('players').off();_famRef().child('config').off();_db.ref('.info/connected').off();}}catch(e){}
+  _shareConnected=false;
+}
+function schedulePush(pid){
+  if(typeof _share==='undefined'||!_share.on||!_db)return;
+  if(_pushTimers[pid])clearTimeout(_pushTimers[pid]);
+  _pushTimers[pid]=setTimeout(()=>{delete _pushTimers[pid];pushPlayer(pid);},1500);
+}
+function pushPlayer(pid){
+  if(!_share.on||!_db)return;
+  let st;
+  if(pid===playerConfig.current)st=normState(state);
+  else{try{st=JSON.parse(localStorage.getItem('eitango_data_'+pid)||'null');}catch(e){st=null;}if(!st)return;st=normState(st);}
+  _famRef().child('players/'+pid).set({state:st,updatedAt:Date.now(),writer:_share.deviceId})
+    .then(()=>{_lastSyncAt=Date.now();renderSharePanel();}).catch(()=>{});
+}
+function schedulePushConfig(){
+  if(typeof _share==='undefined'||!_share.on||!_db)return;
+  if(_cfgPushTimer)clearTimeout(_cfgPushTimer);
+  _cfgPushTimer=setTimeout(()=>{_cfgPushTimer=null;pushConfig();},800);
+}
+function pushConfig(){
+  if(!_share.on||!_db)return;
+  _famRef().child('config').set({players:playerConfig.players,updatedAt:Date.now(),writer:_share.deviceId}).catch(()=>{});
+}
+function removeRemotePlayer(pid){
+  if(!_share.on||!_db)return;
+  if(_pushTimers[pid]){clearTimeout(_pushTimers[pid]);delete _pushTimers[pid];}
+  _famRef().child('players/'+pid).remove().catch(()=>{});
+}
+
+function onRemotePlayer(pid,entry){
+  if(!_share.on||!entry||!entry.state)return;
+  if(entry.writer===_share.deviceId){_lastSyncAt=Date.now();renderSharePanel();return;}
+  const remote=normState(entry.state);
+  let local=null;
+  if(pid===playerConfig.current)local=state;
+  else{try{local=JSON.parse(localStorage.getItem('eitango_data_'+pid)||'null');}catch(e){}}
+  const merged=mergePlayerState(local,remote);
+  const changedLocal=canonJson(merged)!==canonJson(normState(local));
+  const changedRemote=canonJson(merged)!==canonJson(remote);
+  _lastSyncAt=Date.now();
+  if(changedLocal){
+    if(pid===playerConfig.current){
+      _applyingRemote=true;
+      state=Object.assign(DEFAULT_STATE(),merged);
+      save();
+      _applyingRemote=false;
+      queue=[];
+      // 出題中のカードは崩さず、周辺UIのみ即時更新
+      applySkin();renderStreakBadge();renderDailyGoal();renderProgress();renderChips();renderBossBanner();
+      if(view==='status')renderStatusView();
+      else if(view==='collection')renderCollection();
+      else if(view==='manage'){renderSettings();renderGoalBtns();}
+    }else{
+      let prev={};try{prev=JSON.parse(localStorage.getItem('eitango_data_'+pid)||'{}');}catch(e){}
+      localStorage.setItem('eitango_data_'+pid,JSON.stringify({...merged,scope:prev.scope,secScope:prev.secScope}));
+    }
+  }
+  if(changedRemote)schedulePush(pid);
+  renderSharePanel();
+}
+function onRemoteConfig(val){
+  if(!_share.on||!val||!Array.isArray(val.players)||!val.players.length)return;
+  if(val.writer===_share.deviceId)return;
+  if(JSON.stringify(playerConfig.players)===JSON.stringify(val.players))return;
+  _applyingRemote=true;
+  playerConfig.players=val.players;
+  if(!playerConfig.players.some(p=>p.id===playerConfig.current)){
+    playerConfig.current=playerConfig.players[0].id;
+    load();queue=[];cur=null;answered=false;
+    setLevel(state.levelId||'elem',false);
+  }
+  savePlayerConfig();
+  _applyingRemote=false;
+  renderPlayerDisplay();
+  renderSharePanel();
+}
+
+function genFamilyCode(){const cs='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<12;i++)s+=cs[(Math.random()*cs.length)|0];return'FAM-'+s;}
+// 貼り付けられた firebaseConfig（JS/JSONどちらでも）から必要な値を取り出す
+function parseFirebaseConfig(text){
+  const cfg={};
+  for(const k of['apiKey','authDomain','databaseURL','projectId','storageBucket','messagingSenderId','appId']){
+    const m=(text||'').match(new RegExp(k+'\\s*:\\s*["\\x27]([^"\\x27]+)["\\x27]'));
+    if(m)cfg[k]=m[1];
+  }
+  return cfg;
+}
+// 招待コード = { config(必須項目のみ), 家族コード } を base64 でひとまとめに
+function encodeInvite(cfg,code){
+  const slim={apiKey:cfg.apiKey,authDomain:cfg.authDomain||'',databaseURL:cfg.databaseURL,projectId:cfg.projectId||''};
+  try{return btoa(unescape(encodeURIComponent(JSON.stringify({c:slim,k:code}))));}catch(e){return'';}
+}
+function decodeInvite(s){
+  try{const o=JSON.parse(decodeURIComponent(escape(atob((s||'').trim()))));if(o&&o.c&&o.c.apiKey&&o.c.databaseURL&&o.k)return o;}catch(e){}
+  return null;
+}
+function currentInvite(){const cfg=effectiveConfig();return(cfg&&_share.code)?encodeInvite(cfg,_share.code):'';}
+
+// 参加後の共通処理（クラウドの家族データとローカルを統合）
+async function _joinFamily(fam){
+  const cloudPlayers=[...fam.config.players];
+  const cloudStates={};
+  for(const p of cloudPlayers)cloudStates[p.id]=normState(fam.players&&fam.players[p.id]?fam.players[p.id].state:null);
+  const idMap={};
+  for(const lp of playerConfig.players){
+    if(cloudPlayers.find(c=>c.id===lp.id)){idMap[lp.id]=lp.id;continue;}
+    const byName=cloudPlayers.find(c=>c.name===lp.name);
+    if(byName&&confirm(`この端末の「${lp.name}」は、家族の「${byName.name}」と同じ人として進捗を統合しますか？`)){idMap[lp.id]=byName.id;continue;}
+    if(cloudPlayers.length<5){cloudPlayers.push({id:lp.id,name:lp.name});idMap[lp.id]=lp.id;}
+  }
+  for(const lpid of Object.keys(idMap)){
+    const cpid=idMap[lpid];
+    let localSt=null;try{localSt=JSON.parse(localStorage.getItem('eitango_data_'+lpid)||'null');}catch(e){}
+    const merged=mergePlayerState(localSt,cloudStates[cpid]||null);
+    localStorage.setItem('eitango_data_'+cpid,JSON.stringify(merged));
+    if(lpid!==cpid)localStorage.removeItem('eitango_data_'+lpid);
+    cloudStates[cpid]=merged;
+  }
+  for(const cp of cloudPlayers){
+    if(!localStorage.getItem('eitango_data_'+cp.id)&&cloudStates[cp.id])localStorage.setItem('eitango_data_'+cp.id,JSON.stringify(cloudStates[cp.id]));
+  }
+  const oldCur=playerConfig.current;
+  playerConfig.players=cloudPlayers;
+  playerConfig.current=idMap[oldCur]||cloudPlayers[0].id;
+  _share.on=true;saveShare();
+  _applyingRemote=true;savePlayerConfig();_applyingRemote=false;
+  load();queue=[];cur=null;answered=false;
+  await setLevel(state.levelId||'elem',false);
+  pushConfig();
+  for(const p of cloudPlayers)pushPlayer(p.id);
+  await startSync();
+  applySkin();renderPlayerDisplay();renderStreakBadge();renderDailyGoal();
+  if(view==='quiz')nextCard();
+  renderSharePanel();
+  showToast('☁️ かぞく共有に さんか！<br>ローカルの進捗も統合ずみ');
+}
+
+// 招待コードで参加（config も招待コードに含まれる＝相手のFirebaseにつなぐ）
+async function shareJoinInvite(){
+  const raw=(document.getElementById('shareInviteInput')||{}).value||'';
+  const dec=decodeInvite(raw);
+  if(!dec){alert('招待コードが正しくありません。\nコピーした招待コードを そのまま貼り付けてください。');return;}
+  _share.fb=dec.c;_share.code=dec.k;saveShare();
+  try{
+    await _connectDb();
+    const snap=await _db.ref('families/'+dec.k).get();
+    const fam=snap.val();
+    if(!fam||!fam.config||!Array.isArray(fam.config.players)||!fam.config.players.length){alert('この招待コードの家族が見つかりませんでした。\n（作った人の端末で共有がONになっているか確認してください）');_share.on=false;saveShare();return;}
+    await _joinFamily(fam);
+  }catch(e){alert('参加に失敗しました: '+e.message);_share.on=false;saveShare();renderSharePanel();}
+}
+
+// 自分のFirebaseで家族をつくる（configを貼り付け→作成→招待コード発行）
+async function shareCreateWithConfig(){
+  const txt=(document.getElementById('fbConfigInput')||{}).value||'';
+  const cfg=parseFirebaseConfig(txt);
+  if(!cfg.apiKey||!cfg.databaseURL){alert('firebaseConfig が読み取れませんでした。\napiKey と databaseURL を含む firebaseConfig を貼り付けてください。\n（Firebaseの「初期設定の手順」を参照）');return;}
+  _share.fb=cfg;_share.code=genFamilyCode();_share.on=true;saveShare();
+  try{
+    await _connectDb();
+    pushConfig();
+    for(const p of playerConfig.players)pushPlayer(p.id);
+    await startSync();
+    closeShareSetup();
+    renderSharePanel();
+    alert('家族をつくりました！🎉\n\n設定画面の「☁️ かぞく共有」にある\n招待コードを 家族に送ってください。\n\nそのコードを 家族が貼り付けると、\nあなたのFirebaseで 進捗を共有できます。');
+  }catch(e){_share.on=false;saveShare();alert('作成に失敗しました: '+e.message+'\n\ndatabaseURL が正しいか確認してください。');renderSharePanel();}
+}
+function shareLeave(){
+  if(!confirm('かぞく共有をやめて、この端末だけ（スタンドアローン）にもどします。\nローカルのデータはそのまま残ります。\n（あとで同じ招待コードで再参加すれば進捗は統合されます）'))return;
+  stopSync();
+  _share.on=false;saveShare();
+  renderSharePanel();
+  showToast('☁️ 共有をOFFにしました');
+}
+function copyText(t,label){
+  try{navigator.clipboard.writeText(t).then(()=>showToast('📋 '+(label||'コピーしました')),()=>prompt('コピーしてください',t));}
+  catch(e){prompt('コピーしてください',t);}
+}
+function copyInvite(){const inv=currentInvite();if(inv)copyText(inv,'招待コードをコピーしました');}
+function openShareGuide(){document.getElementById('shareGuideBg').style.display='flex';}
+function closeShareGuide(){document.getElementById('shareGuideBg').style.display='none';}
+function openShareSetup(){document.getElementById('shareSetupBg').style.display='flex';}
+function closeShareSetup(){document.getElementById('shareSetupBg').style.display='none';}
+
+function renderSharePanel(){
+  const el=document.getElementById('sharePanelBody');if(!el)return;
+  if(!_share.on){
+    // OFF: 招待コードで参加（相手のFirebaseにつなぐ） or 自分のFirebaseで家族をつくる
+    el.innerHTML=`<p style="margin:0 0 10px;font-size:12.5px;color:var(--muted);font-weight:700;line-height:1.7">家族の進捗をクラウドでリアルタイム共有できます（今はこの端末だけ）。<br>進捗は「進んでいる方」に統合されるので巻き戻りません。</p>
+      <label class="lbl" style="margin-top:0">もらった 招待コードで さんかする</label>
+      <textarea id="shareInviteInput" class="tf" style="font-size:12px;padding:10px 12px;height:64px;resize:vertical;font-family:monospace" placeholder="招待コードを 貼り付け"></textarea>
+      <button class="minibtn" style="width:100%;margin-top:8px" onclick="shareJoinInvite()">🔑 招待コードで 参加する</button>
+      <div style="border-top:1px solid var(--line);margin:14px 0 10px"></div>
+      <p style="margin:0 0 8px;font-size:12px;color:var(--muted);font-weight:700;line-height:1.7">保護者のかた：自分のFirebaseで 家族をはじめる場合はこちら（各家族が それぞれのFirebaseを使います）。</p>
+      <button class="minibtn" style="width:100%" onclick="openShareSetup()">🆕 自分のFirebaseで 家族をつくる</button>`;
+    return;
+  }
+  const live=playerConfig.players.map(p=>{
+    let st=null;
+    try{st=p.id===playerConfig.current?state:JSON.parse(localStorage.getItem('eitango_data_'+p.id)||'null');}catch(e){}
+    let known=0;if(st&&st.prog)for(const v of Object.values(st.prog))if(v==='known')known++;
+    return`<div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;padding:3px 0"><span>${esc(p.name)}${p.id===playerConfig.current?' （この端末）':''}</span><span style="color:var(--muted)">おぼえた ${known.toLocaleString()}語・${st&&st.lastStudy?st.lastStudy:'-'}</span></div>`;
+  }).join('');
+  const inv=currentInvite();
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span style="font-size:12px;font-weight:800">${_shareConnected?'🟢 接続中':'🟡 オフライン（復帰時に自動同期）'}</span>
+      ${_lastSyncAt?`<span style="font-size:11px;color:var(--muted);font-weight:700;margin-left:auto">最終同期 ${new Date(_lastSyncAt).toLocaleTimeString()}</span>`:''}
+    </div>
+    <label class="lbl" style="margin-top:2px">🎟️ 招待コード（これを家族に送る）</label>
+    <div style="display:flex;align-items:center;gap:8px;border:1.5px solid var(--accent);border-radius:12px;padding:9px 12px;margin-bottom:6px;background:#fff2e3">
+      <span style="font-size:11px;font-family:monospace;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(inv)}</span>
+      <button class="bt-allbtn" onclick="copyInvite()">コピー</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:10px">家族コード：${esc(_share.code)}</div>
+    <div style="border-top:1px solid var(--line);padding-top:8px;margin-bottom:10px">
+      <div style="font-size:11px;font-weight:800;color:var(--muted);margin-bottom:4px">かぞくの すすみぐあい（リアルタイム）</div>
+      ${live}
+    </div>
+    <button class="minibtn" style="width:100%" onclick="shareLeave()">🚪 共有をやめる（この端末だけにもどす）</button>`;
+}
+
+// 起動時: 共有ONなら自動接続（失敗してもアプリは通常起動）
+if(_share.on&&firebaseReady())startSync();
 </script>
 </body>
 </html>
